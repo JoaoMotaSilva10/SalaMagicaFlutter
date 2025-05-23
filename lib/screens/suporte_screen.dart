@@ -9,8 +9,7 @@ class SuporteScreen extends StatefulWidget {
 }
 
 class _SuporteScreenState extends State<SuporteScreen> {
-  String? selectedCategory;
-  String? selectedSubCategory;
+  String? selectedOption; // Agora só uma seleção direta
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -23,47 +22,47 @@ class _SuporteScreenState extends State<SuporteScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Qual é o assunto?', style: TextStyle(fontSize: 18)),
-            ExpansionTile(
-              title: Text('Equipamento'),
-              children: [
-                ListTile(
-                  title: Text('Sala'),
-                  leading: Radio(
-                    value: 'sala',
-                    groupValue: selectedSubCategory,
-                    onChanged: (val) => setState(() => selectedSubCategory = val),
-                  ),
-                ),
-                ListTile(
-                  title: Text('Reserva'),
-                  leading: Radio(
-                    value: 'reserva',
-                    groupValue: selectedSubCategory,
-                    onChanged: (val) => setState(() => selectedSubCategory = val),
-                  ),
-                ),
-                ListTile(
-                  title: Text('DataShow'),
-                  leading: Radio(
-                    value: 'datashow',
-                    groupValue: selectedSubCategory,
-                    onChanged: (val) => setState(() => selectedSubCategory = val),
-                  ),
-                ),
-              ],
+            SizedBox(height: 10),
+            // Opções diretas como RadioListTile
+            RadioListTile<String>(
+              title: Text('Equipamentos'),
+              value: 'equipamentos',
+              groupValue: selectedOption,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+              },
             ),
-            ExpansionTile(
-              title: Text('Notebook'),
-              children: [
-                ListTile(
-                  title: Text('Outros'),
-                  leading: Radio(
-                    value: 'outros',
-                    groupValue: selectedSubCategory,
-                    onChanged: (val) => setState(() => selectedSubCategory = val),
-                  ),
-                ),
-              ],
+            RadioListTile<String>(
+              title: Text('Sala'),
+              value: 'sala',
+              groupValue: selectedOption,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: Text('Reserva'),
+              value: 'reserva',
+              groupValue: selectedOption,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: Text('Outros'),
+              value: 'outros',
+              groupValue: selectedOption,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+              },
             ),
             SizedBox(height: 20),
             TextField(
@@ -75,7 +74,7 @@ class _SuporteScreenState extends State<SuporteScreen> {
               maxLines: 5,
             ),
             SizedBox(height: 20),
-            Text('Resposta será enviada para: rm90319@estudante.fleb.edu.br'),
+            Text('Resposta será enviada para o email cadastrado no aplicativo.'),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.push(

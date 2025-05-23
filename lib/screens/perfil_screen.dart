@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login_screen.dart';
-import '../main.dart'; // Para acessar o ThemeProvider
+import '../providers/theme_provider.dart'; // Importação correta do ThemeProvider
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -9,7 +9,7 @@ class PerfilScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -113,4 +113,5 @@ class PerfilScreen extends StatelessWidget {
         ],
       ),
     );
-  }}
+  }
+}

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'inicio_screen.dart';
 import 'cadastro_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -9,50 +8,40 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Bem-vindo(a)!', style: TextStyle(fontSize: 24)),
-            SizedBox(height: 20),
+            const Text('Faça seu login', style: TextStyle(fontSize: 24)),
+            const SizedBox(height: 20),
             TextField(
-              decoration: InputDecoration(
-                labelText: 'Nome de usuário',
+              decoration: const InputDecoration(
+                labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
+              keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             TextField(
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Senha',
                 border: OutlineInputBorder(),
               ),
             ),
-            Row(
-              children: [
-                Checkbox(value: false, onChanged: (val) {}),
-                Text('Manter conexão'),
-                Spacer(),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('Esqueceu a senha?'),
-                ),
-              ],
-            ),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => InicioScreen()),
-              ),
-              child: Text('Entrar'),
+              onPressed: () {
+                // Lógica de login
+              },
+              child: const Text('Entrar'),
             ),
             TextButton(
-              onPressed: () => Navigator.push(
+              onPressed: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => CadastroScreen()),
+                MaterialPageRoute(builder: (context) => const CadastroScreen()),
               ),
-              child: Text('Não possui uma conta? Cadastre-se!'),
+              child: const Text('Não tem conta? Cadastre-se!'),
             ),
           ],
         ),
