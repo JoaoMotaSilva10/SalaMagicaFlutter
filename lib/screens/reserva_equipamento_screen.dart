@@ -1,39 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:sala_magica/model/recurso.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
-import '../model/recurso.dart';
 
-class ReservarSalaScreen extends StatefulWidget {
+class ReservaEquipamentoScreen extends StatefulWidget {
   final Usuario usuario;
 
-  const ReservarSalaScreen({Key? key, required this.usuario}) : super(key: key);
+  const ReservaEquipamentoScreen({Key? key, required this.usuario})
+    : super(key: key);
 
   @override
-  State<ReservarSalaScreen> createState() => _ReservarSalaScreenState();
+  State<ReservaEquipamentoScreen> createState() =>
+      _ReservaEquipamentoScreenState();
 }
 
-class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
+class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
   final _formKey = GlobalKey<FormState>();
-  Recurso? _salaSelecionada;
+  Recurso? _equipamentoSelecionado;
   DateTime? _dataSelecionada;
   TimeOfDay? _horaSelecionada;
   bool _carregando = false;
-  List<Recurso> _salas = [];
+  List<Recurso> _equipamentos = [];
 
   @override
   void initState() {
     super.initState();
-    _carregarSalas();
+    _carregarEquipamentos();
   }
 
-  Future<void> _carregarSalas() async {
+  Future<void> _carregarEquipamentos() async {
     try {
-      final lista = await ApiService.buscarRecursos(tipo: 'AMBIENTE');
-      setState(() => _salas = lista);
+      final lista = await ApiService.buscarRecursos(tipo: 'EQUIPAMENTO');
+      setState(() => _equipamentos = lista);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao carregar salas')),
+        const SnackBar(content: Text('Erro ao carregar equipamentos')),
       );
     }
   }
@@ -59,9 +61,8 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
   Future<void> _enviarReserva() async {
     if (!_formKey.currentState!.validate() ||
         _dataSelecionada == null ||
-        _horaSelecionada == null) {
+        _horaSelecionada == null)
       return;
-    }
 
     setState(() => _carregando = true);
 
@@ -74,29 +75,29 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
     );
 
     final reserva = {
-      "informacao": "Reserva de ${_salaSelecionada!.nome}",
+      "informacao": "Reserva de ${_equipamentoSelecionado!.nome}",
       "dataReservada": dataHora.toIso8601String(),
       "statusReserva": "EM_ANALISE",
       "usuario": widget.usuario.toJson(),
-      "recurso": _salaSelecionada!.toJson(),
+      "recurso": _equipamentoSelecionado!.toJson(),
     };
 
     try {
-      final response = await ApiService.enviarReservaSala(reserva);
+      final response = await ApiService.enviarReservaEquipamento(reserva);
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reserva enviada com sucesso')),
         );
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${response.body}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: ${response.body}')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro de conexão')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Erro de conexão')));
     } finally {
       setState(() => _carregando = false);
     }
@@ -105,7 +106,7 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reservar Sala')),
+      appBar: AppBar(title: const Text('Reservar Equipamento')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -113,19 +114,20 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
           child: ListView(
             children: [
               DropdownButtonFormField<Recurso>(
-                value: _salaSelecionada,
-                items: _salas
-                    .map(
-                      (sala) => DropdownMenuItem(
-                        value: sala,
-                        child: Text(sala.nome),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => _salaSelecionada = value),
-                validator: (value) =>
-                    value == null ? 'Escolha uma sala' : null,
-                decoration: const InputDecoration(labelText: 'Sala'),
+                value: _equipamentoSelecionado,
+                items:
+                    _equipamentos
+                        .map(
+                          (equip) => DropdownMenuItem(
+                            value: equip,
+                            child: Text(equip.nome),
+                          ),
+                        )
+                        .toList(),
+                onChanged:
+                    (value) => setState(() => _equipamentoSelecionado = value),
+                validator:
+                    (value) => value == null ? 'Escolha um equipamento' : null,
               ),
               const SizedBox(height: 16),
               ListTile(
@@ -150,9 +152,9 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
               _carregando
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: _enviarReserva,
-                      child: const Text('Confirmar Reserva'),
-                    ),
+                    onPressed: _enviarReserva,
+                    child: const Text('Confirmar Reserva'),
+                  ),
             ],
           ),
         ),

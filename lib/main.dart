@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
-import 'screens/perfil_screen.dart';
+import 'routes.dart';
 
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+      create: (_) => ThemeProvider(),
       child: const SalaMagicaApp(),
     ),
   );
@@ -18,10 +18,16 @@ class SalaMagicaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     return MaterialApp(
-      theme: themeProvider.isDarkMode ? ThemeData.dark() : ThemeData.light(),
-      home: const PerfilScreen(), // Ou sua tela inicial
+      debugShowCheckedModeBanner: false,
+      title: 'Sala Mágica',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      initialRoute: AppRoutes.login,
+      routes: AppRoutes.routes,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }
