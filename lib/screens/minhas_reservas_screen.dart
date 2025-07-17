@@ -48,10 +48,15 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Minhas Reservas'),
+        title: const Text(
+          'Minhas Reservas',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue.shade800,
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
       body:
           carregando
               ? const Center(child: CircularProgressIndicator())
@@ -73,81 +78,89 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
   }
 
   Widget _buildReservaCard(Reserva reserva) {
-  final status = reserva.statusReserva;
-  final statusColor = _getStatusColor(status);
+    final status = reserva.statusReserva;
+    final statusColor = _getStatusColor(status);
 
-  final data = DateFormat('dd/MM/yyyy').format(reserva.dataReservada);
-  final hora = DateFormat('HH:mm').format(reserva.dataReservada);
-  final tipo = reserva.recurso.tipo;
-  final local = reserva.recurso.descricao;
+    final data = DateFormat('dd/MM/yyyy').format(reserva.dataReservada);
+    final hora = DateFormat('HH:mm').format(reserva.dataReservada);
+    final tipo = reserva.recurso.tipo;
+    final local = reserva.recurso.descricao;
 
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    margin: const EdgeInsets.only(bottom: 16),
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                data, // ✅ corrigido aqui
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade800,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.only(bottom: 16),
+      color: Colors.grey.shade900, // fundo escuro moderno
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Data e Status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$data · $hora',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(Icons.access_time, 'Horário: $hora'), // ✅ corrigido aqui
-          _buildInfoRow(Icons.category, 'Tipo: $tipo'),
-          _buildInfoRow(Icons.location_on, 'Descrição: $local'),
-        ],
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status.toUpperCase(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildInfoRow(Icons.devices_other, 'Tipo: $tipo'),
+            const SizedBox(height: 8),
+            _buildInfoRow(Icons.location_on, 'Local: $local'),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildInfoRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.blue.shade600),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 16))),
-        ],
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.blue.shade300),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 15, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'agendada':
+      case 'aceita':
         return Colors.blue;
       case 'realizada':
         return Colors.green;
-      case 'cancelada':
+      case 'recusada':
         return Colors.red;
       case 'em_analise':
         return Colors.orange;

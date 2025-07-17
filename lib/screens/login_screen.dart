@@ -11,9 +11,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   bool _carregando = false;
+  bool _manterConexao = false;
+  bool _mostrarSenha = false;
   String? _erro;
 
   Future<void> _login() async {
@@ -22,30 +24,24 @@ class _LoginScreenState extends State<LoginScreen> {
       _erro = null;
     });
 
-    final email = _emailController.text.trim();
+    final usuario = _usuarioController.text.trim();
     final senha = _senhaController.text.trim();
 
     try {
-      final response = await ApiService.login(email, senha);
+      final response = await ApiService.login(usuario, senha);
 
-      if (response.statusCode == 200) {
-        final sucesso = response.body.toLowerCase() == 'true';
-        if (sucesso) {
-          final usuario = await ApiService.buscarPerfil(email);
-
-          if (usuario != null) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => InicioScreen(usuario: usuario)),
-            );
-          } else {
-            setState(() => _erro = 'Erro ao carregar perfil');
-          }
+      if (response.statusCode == 200 && response.body.toLowerCase() == 'true') {
+        final perfil = await ApiService.buscarPerfil(usuario);
+        if (perfil != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
+          );
         } else {
-          setState(() => _erro = 'E-mail ou senha incorretos');
+          setState(() => _erro = 'Erro ao carregar perfil');
         }
       } else {
-        setState(() => _erro = 'Erro ao fazer login (${response.statusCode})');
+        setState(() => _erro = 'Nome de usuário ou senha incorretos');
       }
     } catch (e) {
       setState(() => _erro = 'Erro de conexão');
@@ -56,50 +52,116 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Bem-vindo!',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+                Image.asset(
+                  'lib/assets/logo.png', // coloque sua logo aqui
+                  height: 40,
                 ),
                 const SizedBox(height: 32),
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
+
+                const Text('Bem-vindo(a)!'),
+                const SizedBox(height: 8),
+                const Text('Acesse sua conta!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                const Text(
+                  'Garanta seus equipamentos com rapidez e segurança.',
+                  style: TextStyle(color: Colors.black54),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
+
+                Text('Nome de usuário'),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _usuarioController,
+                  decoration: InputDecoration(
+                    hintText: 'Digite aqui seu nome de usuário',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                Text('Senha'),
+                const SizedBox(height: 6),
                 TextField(
                   controller: _senhaController,
-                  decoration: const InputDecoration(labelText: 'Senha'),
-                  obscureText: true,
+                  obscureText: !_mostrarSenha,
+                  decoration: InputDecoration(
+                    hintText: 'Digite aqui sua senha',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    suffixIcon: IconButton(
+                      icon: Icon(_mostrarSenha ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () {
+                        setState(() => _mostrarSenha = !_mostrarSenha);
+                      },
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _manterConexao,
+                          onChanged: (value) => setState(() => _manterConexao = value!),
+                        ),
+                        const Text('Manter conexão'),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text('Esqueceu a senha?'),
+                    ),
+                  ],
+                ),
+
                 if (_erro != null)
-                  Text(
-                    _erro!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(_erro!, style: const TextStyle(color: Colors.red)),
                   ),
-                if (_carregando)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ElevatedButton(
-                    onPressed: _login,
-                    child: const Text('Entrar'),
+
+                const SizedBox(height: 24),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: _carregando ? null : _login,
+                    child: _carregando
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Entrar', style: TextStyle(fontSize: 16)),
                   ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.cadastro);
-                  },
-                  child: const Text('Criar conta'),
+                ),
+
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Não possui uma conta?', style: TextStyle(color: Colors.grey)),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.cadastro);
+                      },
+                      child: const Text('Cadastre-se!', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sala_magica/screens/mensagem_enviada_screen.dart';
 import '../api/api_service.dart';
-import 'analise_screen.dart';
 import '../model/usuario.dart';
 
 class SuporteScreen extends StatefulWidget {
@@ -47,14 +47,12 @@ class _SuporteScreenState extends State<SuporteScreen> {
         setState(() {
           _successMessage = 'Mensagem enviada com sucesso!';
         });
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AnaliseScreen(usuario: widget.usuario),
-            ),
-          );
-        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MensagemEnviadaScreen(usuario: widget.usuario),
+          ),
+        );
       } else {
         setState(() {
           _errorMessage = 'Erro ao enviar mensagem.';
@@ -105,18 +103,19 @@ class _SuporteScreenState extends State<SuporteScreen> {
               ),
               const SizedBox(height: 20),
               if (_errorMessage != null)
-                Text(_errorMessage!,
-                    style: const TextStyle(color: Colors.red)),
+                Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
               if (_successMessage != null)
-                Text(_successMessage!,
-                    style: const TextStyle(color: Colors.green)),
+                Text(
+                  _successMessage!,
+                  style: const TextStyle(color: Colors.green),
+                ),
               const SizedBox(height: 20),
               _loading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: _enviarMensagem,
-                      child: const Text('Enviar mensagem'),
-                    ),
+                    onPressed: _enviarMensagem,
+                    child: const Text('Enviar mensagem'),
+                  ),
             ],
           ),
         ),
