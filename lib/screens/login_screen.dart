@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:sala_magica/model/usuario.dart';
 import 'package:sala_magica/screens/inicio_screen.dart';
 import '../api/api_service.dart';
 import '../routes.dart';
@@ -28,26 +31,25 @@ class _LoginScreenState extends State<LoginScreen> {
     final senha = _senhaController.text.trim();
 
     try {
-      final response = await ApiService.login(usuario, senha);
+  final response = await ApiService.login(usuario, senha);
 
-      if (response.statusCode == 200 && response.body.toLowerCase() == 'true') {
-        final perfil = await ApiService.buscarPerfil(usuario);
-        if (perfil != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
-          );
-        } else {
-          setState(() => _erro = 'Erro ao carregar perfil');
-        }
-      } else {
-        setState(() => _erro = 'Nome de usuário ou senha incorretos');
-      }
-    } catch (e) {
-      setState(() => _erro = 'Erro de conexão');
-    } finally {
-      setState(() => _carregando = false);
-    }
+  if (response.statusCode == 200) {
+    final usuarioJson = jsonDecode(response.body);
+    final perfil = Usuario.fromJson(usuarioJson);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
+    );
+  } else {
+    setState(() => _erro = 'Nome de usuário ou senha incorretos');
+  }
+} catch (e) {
+  setState(() => _erro = 'Erro de conexão');
+} finally {
+  setState(() => _carregando = false);
+}
+
   }
 
   @override
@@ -62,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.asset(
-                  'lib/assets/logo.png', // coloque sua logo aqui
+                  'lib/assets/logo.png',
                   height: 40,
                 ),
                 const SizedBox(height: 32),

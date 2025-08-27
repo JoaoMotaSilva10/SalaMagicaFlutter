@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/usuario.dart';
 import '../model/reserva.dart';
-import '../model/recurso.dart'; // Adicione isto
+import '../model/recurso.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:8080';
 
+  // LOGIN
   static Future<http.Response> login(String email, String senha) async {
     return await http.post(
       Uri.parse('$baseUrl/usuarios/login'),
@@ -15,6 +16,7 @@ class ApiService {
     );
   }
 
+  // PERFIL
   static Future<Usuario?> buscarPerfil(String email) async {
     final response = await http.get(
       Uri.parse('$baseUrl/usuarios/perfil?email=$email'),
@@ -27,8 +29,8 @@ class ApiService {
     }
   }
 
-  static Future<http.Response> cadastrarUsuario(
-      Map<String, dynamic> usuario) async {
+  // CADASTRO
+  static Future<http.Response> cadastrarUsuario(Map<String, dynamic> usuario) async {
     return await http.post(
       Uri.parse('$baseUrl/usuarios'),
       headers: {'Content-Type': 'application/json'},

@@ -8,6 +8,7 @@ void main() {
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
       child: const SalaMagicaApp(),
+      
     ),
   );
 }
