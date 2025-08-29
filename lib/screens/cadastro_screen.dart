@@ -64,11 +64,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Logo
                   Image.asset(
-                    'assets/logo.png',
-                    height: 40,
-                  ),
+                  'lib/assets/logo.png',
+                  height: 40,
+                ),
                   const SizedBox(height: 32),
 
                   const Text('Bem-vindo(a)!'),

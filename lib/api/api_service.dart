@@ -92,4 +92,25 @@ class ApiService {
       throw Exception('Erro ao buscar recursos');
     }
   }
+  
+  // ESQUECI A SENHA
+  static Future<http.Response> esqueciSenha(String email) async {
+    return await http.post(
+      Uri.parse('$baseUrl/auth/esqueci-senha'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+  }
+
+  // REDEFINIR SENHA
+  static Future<http.Response> redefinirSenha(String email, String novaSenha) async {
+    return await http.post(
+      Uri.parse('$baseUrl/auth/resetar-senha'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'novaSenha': novaSenha,
+      }),
+    );
+  }
 }
