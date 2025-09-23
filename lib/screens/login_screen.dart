@@ -121,7 +121,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.esqueciSenha);
+                      },
                       child: const Text('Esqueceu a senha?'),
                     ),
                   ],

@@ -9,6 +9,9 @@ import 'screens/suporte_screen.dart';
 import 'screens/tipo_reserva_screen.dart';
 import 'screens/inicio_screen.dart';
 import 'screens/analise_screen.dart';
+import 'screens/esqueci_senha_screen.dart';
+import 'screens/reset_senha_screen.dart';
+import 'screens/mensagem_enviada_screen.dart';
 import 'model/usuario.dart';
 
 class AppRoutes {
@@ -22,11 +25,16 @@ class AppRoutes {
   static const String minhasReservas = '/minhas_reservas';
   static const String mensagens = '/mensagens';
   static const String analise = '/analise';
+  static const String esqueciSenha = '/esqueci_senha';
+  static const String resetSenha = '/reset_senha';
+  static const String mensagemEnviada = '/mensagem_enviada';
 
   static Map<String, WidgetBuilder> get routes {
     return {
       login: (context) => const LoginScreen(),
       cadastro: (context) => const CadastroScreen(),
+      esqueciSenha: (context) => const EsqueciSenhaScreen(),
+      resetSenha: (context) => const ResetSenhaScreen(),
       // As rotas com argumentos devem ser removidas daqui e tratadas no generateRoute
     };
   }
@@ -73,6 +81,11 @@ class AppRoutes {
       case analise:
         return MaterialPageRoute(
           builder: (_) => AnaliseScreen(usuario: args as Usuario),
+        );
+
+      case mensagemEnviada:
+        return MaterialPageRoute(
+          builder: (_) => MensagemEnviadaScreen(usuario: args as Usuario),
         );
     }
 

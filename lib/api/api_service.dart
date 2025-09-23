@@ -96,21 +96,16 @@ class ApiService {
   // ESQUECI A SENHA
   static Future<http.Response> esqueciSenha(String email) async {
     return await http.post(
-      Uri.parse('$baseUrl/auth/esqueci-senha'),
+      Uri.parse('$baseUrl/usuarios/esqueci-senha?email=$email'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
     );
   }
 
   // REDEFINIR SENHA
-  static Future<http.Response> redefinirSenha(String email, String novaSenha) async {
+  static Future<http.Response> redefinirSenha(String token, String novaSenha) async {
     return await http.post(
-      Uri.parse('$baseUrl/auth/resetar-senha'),
+      Uri.parse('$baseUrl/usuarios/redefinir-senha?token=$token&novaSenha=$novaSenha'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'novaSenha': novaSenha,
-      }),
     );
   }
 }
