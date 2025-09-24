@@ -1,5 +1,7 @@
 # 📱 Sala Mágica - Mobile App
-(lib/assets/banner.png)
+
+![Banner](lib/assets/banner.png)
+
 > Sistema mobile para reserva de salas e equipamentos escolares desenvolvido em Flutter
 
 ## 🚀 Sobre o Projeto
