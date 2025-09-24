@@ -107,8 +107,6 @@ lib/
 ├── widgets/               # Componentes reutilizáveis
 │   ├── gradient_background.dart
 │   └── modern_button.dart
-├── providers/             # Gerenciamento de estado
-│   └── theme_provider.dart
 ├── routes.dart           # Configuração de rotas
 └── main.dart            # Ponto de entrada
 ```
