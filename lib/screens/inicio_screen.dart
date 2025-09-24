@@ -38,8 +38,14 @@ class InicioScreen extends StatelessWidget {
                       ),
                       child: Image.asset(
                         'assets/logo.png',
-                        width: 40,
-                        color: Colors.white,
+                        height: 60,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.image_not_supported,
+                            size: 60,
+                            color: Colors.white,
+                          );
+                        },
                       ),
                     ),
                     Container(

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
 import '../model/reserva.dart';
+import '../widgets/gradient_background.dart';
 
 class MinhasReservasScreen extends StatefulWidget {
   final Usuario usuario;
@@ -48,32 +49,59 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1a1a1a),
+        elevation: 0,
         title: const Text(
           'Minhas Reservas',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      body:
-          carregando
-              ? const Center(child: CircularProgressIndicator())
-              : erro != null
-              ? Center(
-                child: Text(erro!, style: const TextStyle(color: Colors.red)),
+      backgroundColor: Colors.transparent,
+      body: GradientBackground(
+        child: carregando
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF7e3ff2),
+                ),
               )
-              : reservas.isEmpty
-              ? const Center(child: Text('Nenhuma reserva encontrada.'))
-              : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: reservas.length,
-                itemBuilder: (context, index) {
-                  final reserva = reservas[index];
-                  return _buildReservaCard(reserva);
-                },
-              ),
+            : erro != null
+                ? Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      ),
+                      child: Text(
+                        erro!,
+                        style: const TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    ),
+                  )
+                : reservas.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Nenhuma reserva encontrada.',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: reservas.length,
+                        itemBuilder: (context, index) {
+                          final reserva = reservas[index];
+                          return _buildReservaCard(reserva);
+                        },
+                      ),
+      ),
     );
   }
 

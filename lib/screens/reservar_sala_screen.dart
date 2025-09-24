@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
 import '../model/recurso.dart';
+import '../widgets/gradient_background.dart';
 
 class ReservarSalaScreen extends StatefulWidget {
   final Usuario usuario;
@@ -105,13 +106,27 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reservar Sala')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1a1a1a),
+        elevation: 0,
+        title: const Text(
+          'Reservar Sala',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: GradientBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
               DropdownButtonFormField<Recurso>(
                 value: _salaSelecionada,
                 items: _salas
@@ -153,7 +168,8 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
                       onPressed: _enviarReserva,
                       child: const Text('Confirmar Reserva'),
                     ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

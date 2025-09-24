@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/cadastro_screen.dart';
 import 'screens/perfil_screen.dart';
+import 'screens/editar_perfil_screen.dart';
 import 'screens/reserva_equipamento_screen.dart';
 import 'screens/reservar_sala_screen.dart';
 import 'screens/minhas_reservas_screen.dart';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String cadastro = '/cadastro';
   static const String inicio = '/inicio';
   static const String perfil = '/perfil';
+  static const String editarPerfil = '/editar_perfil';
   static const String reserva = '/reserva';
   static const String reservarEquipamento = '/reserva_equipamento';
   static const String reservarSala = '/reserva_sala';
@@ -51,6 +53,15 @@ class AppRoutes {
       case perfil:
         return MaterialPageRoute(
           builder: (_) => PerfilScreen(usuario: args as Usuario),
+        );
+
+      case editarPerfil:
+        final arguments = args as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => EditarPerfilScreen(
+            usuario: arguments['usuario'] as Usuario,
+            perfil: arguments['perfil'] as Map<String, dynamic>,
+          ),
         );
 
       case reserva:
