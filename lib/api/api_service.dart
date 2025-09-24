@@ -17,16 +17,24 @@ class ApiService {
   }
 
   // PERFIL
-  static Future<Usuario?> buscarPerfil(String email) async {
+  static Future<Map<String, dynamic>?> buscarPerfil(String email) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/usuarios/perfil?email=$email'),
+      Uri.parse('$baseUrl/api/perfil/$email'),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
-      return Usuario.fromJson(jsonDecode(response.body));
+      return jsonDecode(response.body);
     } else {
       return null;
     }
+  }
+
+  static Future<http.Response> atualizarPerfil(Map<String, dynamic> perfil) async {
+    return await http.put(
+      Uri.parse('$baseUrl/api/perfil'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(perfil),
+    );
   }
 
   // CADASTRO

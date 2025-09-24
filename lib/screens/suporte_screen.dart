@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sala_magica/screens/mensagem_enviada_screen.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
+import '../widgets/gradient_background.dart';
 
 class SuporteScreen extends StatefulWidget {
   final Usuario usuario;
@@ -79,13 +80,27 @@ class _SuporteScreenState extends State<SuporteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Suporte')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1a1a1a),
+        elevation: 0,
+        title: const Text(
+          'Suporte',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: GradientBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               const Text('Qual é o assunto?', style: TextStyle(fontSize: 18)),
               const SizedBox(height: 10),
               _buildRadio('Equipamentos'),
@@ -116,7 +131,8 @@ class _SuporteScreenState extends State<SuporteScreen> {
                     onPressed: _enviarMensagem,
                     child: const Text('Enviar mensagem'),
                   ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

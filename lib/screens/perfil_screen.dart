@@ -3,6 +3,7 @@ import '../api/api_service.dart';
 import '../model/usuario.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
+import '../routes.dart';
 import 'login_screen.dart';
 
 class PerfilScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class PerfilScreen extends StatefulWidget {
 }
 
 class _PerfilScreenState extends State<PerfilScreen> {
-  Usuario? perfil;
+  Map<String, dynamic>? perfil;
   bool carregando = true;
   String? erro;
 
@@ -32,13 +33,29 @@ class _PerfilScreenState extends State<PerfilScreen> {
     });
 
     try {
-      final usuario = await ApiService.buscarPerfil(widget.usuario.email);
-      if (usuario != null) {
+      final perfilData = await ApiService.buscarPerfil(widget.usuario.email);
+      if (perfilData != null) {
         setState(() {
-          perfil = usuario;
+          perfil = perfilData;
         });
       } else {
-        setState(() => erro = 'Perfil não encontrado.');
+        // Cria um perfil vazio se não encontrar
+        setState(() {
+          perfil = {
+            'id': null,
+            'usuario': {
+              'id': widget.usuario.id,
+              'nome': widget.usuario.nome,
+              'email': widget.usuario.email,
+            },
+            'rm': null,
+            'unidade': null,
+            'turma': null,
+            'serie': null,
+            'periodo': null,
+            'cpf': null,
+          };
+        });
       }
     } catch (e) {
       setState(() => erro = 'Erro de conexão.');
@@ -48,6 +65,23 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 
 
+
+  void _editarPerfil() async {
+    if (perfil == null) return;
+    
+    final resultado = await Navigator.pushNamed(
+      context,
+      AppRoutes.editarPerfil,
+      arguments: {
+        'usuario': widget.usuario,
+        'perfil': perfil!,
+      },
+    );
+    
+    if (resultado == true) {
+      _carregarPerfil(); // Recarrega o perfil após edição
+    }
+  }
 
   void _confirmarLogout(BuildContext context) {
     showDialog(
@@ -80,6 +114,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1a1a1a),
+        elevation: 0,
         title: ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
             colors: [Colors.white, Color(0xFFa97fff)],
@@ -89,9 +125,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 20,
             ),
           ),
         ),
+        centerTitle: true,
         leading: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -99,6 +137,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
               colors: [Color(0xFF6200ea), Color(0xFF7e3ff2)],
             ),
             borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF6200ea).withOpacity(0.3),
+                blurRadius: 15,
+                spreadRadius: 2,
+              ),
+            ],
           ),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -174,7 +219,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                   colors: [Colors.white, Color(0xFFa97fff)],
                                 ).createShader(bounds),
                                 child: Text(
-                                  perfil!.nome.toString(),
+                                  perfil?['usuario']?['nome']?.toString() ?? widget.usuario.nome,
                                   style: const TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
@@ -184,13 +229,20 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            _buildProfileItem(context, 'RM:', perfil!.rm?.toString() ?? '-'),
-                            _buildProfileItem(context, 'Unidade:', perfil!.unidade?.toString() ?? '-'),
-                            _buildProfileItem(context, 'Turma:', perfil!.turma?.toString() ?? '-'),
-                            _buildProfileItem(context, 'Série:', perfil!.serie?.toString() ?? '-'),
-                            _buildProfileItem(context, 'Período:', perfil!.periodo?.toString() ?? '-'),
-                            _buildProfileItem(context, 'CPF:', perfil!.cpf?.toString() ?? '-'),
-                            const SizedBox(height: 40),
+                            _buildProfileItem(context, 'Email:', perfil?['usuario']?['email']?.toString() ?? widget.usuario.email),
+                            _buildProfileItem(context, 'RM:', perfil?['rm']?.toString() ?? '-'),
+                            _buildProfileItem(context, 'Unidade:', perfil?['unidade']?.toString() ?? '-'),
+                            _buildProfileItem(context, 'Turma:', perfil?['turma']?.toString() ?? '-'),
+                            _buildProfileItem(context, 'Série:', perfil?['serie']?.toString() ?? '-'),
+                            _buildProfileItem(context, 'Período:', perfil?['periodo']?.toString() ?? '-'),
+                            _buildProfileItem(context, 'CPF:', perfil?['cpf']?.toString() ?? '-'),
+                            const SizedBox(height: 32),
+                            ModernButton(
+                              text: 'Editar Perfil',
+                              icon: Icons.edit,
+                              onPressed: perfil != null ? () => _editarPerfil() : null,
+                            ),
+                            const SizedBox(height: 16),
                             ModernButton(
                               text: 'Sair da conta',
                               icon: Icons.logout,

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:sala_magica/model/recurso.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
+import '../widgets/gradient_background.dart';
 
 class ReservaEquipamentoScreen extends StatefulWidget {
   final Usuario usuario;
@@ -106,13 +107,27 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reservar Equipamento')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1a1a1a),
+        elevation: 0,
+        title: const Text(
+          'Reservar Equipamento',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: GradientBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
               DropdownButtonFormField<Recurso>(
                 value: _equipamentoSelecionado,
                 items:
@@ -155,7 +170,8 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                     onPressed: _enviarReserva,
                     child: const Text('Confirmar Reserva'),
                   ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
