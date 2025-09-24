@@ -98,9 +98,16 @@ class _SuporteScreenState extends State<SuporteScreen> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - 
+                    AppBar().preferredSize.height - 
+                    MediaQuery.of(context).padding.top - 40,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               const Text('Qual é o assunto?', style: TextStyle(fontSize: 18)),
               const SizedBox(height: 10),
               _buildRadio('Equipamentos'),
@@ -131,7 +138,9 @@ class _SuporteScreenState extends State<SuporteScreen> {
                     onPressed: _enviarMensagem,
                     child: const Text('Enviar mensagem'),
                   ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),

@@ -62,7 +62,14 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: SingleChildScrollView(
-              child: Column(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 
+                      MediaQuery.of(context).padding.top - 
+                      MediaQuery.of(context).padding.bottom - 48,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
@@ -288,7 +295,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                ],
+                  ],
+                  ),
+                ),
               ),
             ),
           ),

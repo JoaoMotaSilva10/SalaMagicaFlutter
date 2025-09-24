@@ -188,7 +188,7 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
         return Colors.blue;
       case 'realizada':
         return Colors.green;
-      case 'recusada':
+      case 'cancelada':
         return Colors.red;
       case 'em_analise':
         return Colors.orange;
