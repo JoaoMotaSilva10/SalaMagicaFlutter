@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../model/usuario.dart';
 import '../model/reserva.dart';
 import '../model/recurso.dart';
 
