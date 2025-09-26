@@ -16,14 +16,24 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
+  final _rmController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _turmaController = TextEditingController();
 
   bool _carregando = false;
   bool _mostrarSenha = false;
   bool _mostrarConfirmarSenha = false;
   String? _erro;
+  String _serieEscolhida = 'primeira';
+  String _periodoEscolhido = 'manhã';
 
   Future<void> _cadastrar() async {
-    if (!_formKey.currentState!.validate()) return;
+    print('🚀 Iniciando cadastro...');
+    
+    if (!_formKey.currentState!.validate()) {
+      print('❌ Validação falhou');
+      return;
+    }
 
     setState(() {
       _carregando = true;
@@ -34,20 +44,39 @@ class _CadastroScreenState extends State<CadastroScreen> {
       "nome": _nomeController.text.trim(),
       "email": _emailController.text.trim(),
       "senha": _senhaController.text.trim(),
-      "nivelAcesso": "USER",
       "statusUsuario": "ATIVO",
-      "foto": null,
+      "tipoUsuario": "ALUNO",
+      "rm": _rmController.text.trim().isNotEmpty ? _rmController.text.trim() : null,
+      "cpf": _cpfController.text.trim().isNotEmpty ? _cpfController.text.trim() : null,
+      "turma": _turmaController.text.trim().isNotEmpty ? _turmaController.text.trim() : null,
+      "serie": _serieEscolhida,
+      "periodo": _periodoEscolhido,
     };
 
+    print('📄 Dados do usuário: $novoUsuario');
+
     try {
+      print('🔗 Enviando para API...');
       final response = await ApiService.cadastrarUsuario(novoUsuario);
-      if (response.statusCode == 200) {
+      print('✅ Status: ${response.statusCode}');
+      print('📄 Response: ${response.body}');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('✅ Cadastro realizado com sucesso!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cadastro realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
         Navigator.pushReplacementNamed(context, AppRoutes.login);
       } else {
-        setState(() => _erro = 'Erro: ${response.body}');
+        print('❌ Erro no servidor: ${response.statusCode}');
+        setState(() => _erro = 'Erro no servidor: ${response.statusCode}\n${response.body}');
       }
     } catch (e) {
-      setState(() => _erro = 'Erro ao conectar ao servidor');
+      print('❌ Erro de conexão: $e');
+      setState(() => _erro = 'Erro ao conectar ao servidor: $e');
     } finally {
       setState(() => _carregando = false);
     }
@@ -155,7 +184,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         hintText: 'Digite aqui seu email',
                         prefixIcon: Icon(Icons.email, color: Color(0xFF7e3ff2)),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Informe seu email' : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe seu email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Email inválido';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24),
 
@@ -175,7 +212,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         hintText: 'Digite aqui seu nome de usuário',
                         prefixIcon: Icon(Icons.person, color: Color(0xFF7e3ff2)),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Informe seu nome' : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe seu nome';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24),
 
@@ -203,8 +245,124 @@ class _CadastroScreenState extends State<CadastroScreen> {
                           onPressed: () => setState(() => _mostrarSenha = !_mostrarSenha),
                         ),
                       ),
-                      validator: (value) =>
-                          value!.length < 6 ? 'Senha muito curta (mín. 6 caracteres)' : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe sua senha';
+                        }
+                        if (value.length < 6) {
+                          return 'Senha muito curta (mín. 6 caracteres)';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'RM (opcional)',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _rmController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'Digite seu RM',
+                        prefixIcon: Icon(Icons.badge, color: Color(0xFF7e3ff2)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'CPF (opcional)',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _cpfController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'Digite seu CPF',
+                        prefixIcon: Icon(Icons.credit_card, color: Color(0xFF7e3ff2)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Turma (opcional)',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _turmaController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'Ex: inf3cm',
+                        prefixIcon: Icon(Icons.class_, color: Color(0xFF7e3ff2)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Série',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _serieEscolhida,
+                      style: const TextStyle(color: Colors.white),
+                      dropdownColor: const Color(0xFF1a1a1a),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.school, color: Color(0xFF7e3ff2)),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'primeira', child: Text('Primeira')),
+                        DropdownMenuItem(value: 'segunda', child: Text('Segunda')),
+                        DropdownMenuItem(value: 'terceira', child: Text('Terceira')),
+                      ],
+                      onChanged: (value) => setState(() => _serieEscolhida = value!),
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Período',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _periodoEscolhido,
+                      style: const TextStyle(color: Colors.white),
+                      dropdownColor: const Color(0xFF1a1a1a),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.access_time, color: Color(0xFF7e3ff2)),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'manhã', child: Text('Manhã')),
+                        DropdownMenuItem(value: 'tarde', child: Text('Tarde')),
+                        DropdownMenuItem(value: 'noite', child: Text('Noite')),
+                      ],
+                      onChanged: (value) => setState(() => _periodoEscolhido = value!),
                     ),
                     const SizedBox(height: 24),
 
@@ -234,6 +392,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         ),
                       ),
                       validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Confirme sua senha';
+                        }
                         if (value != _senhaController.text) {
                           return 'As senhas não coincidem';
                         }

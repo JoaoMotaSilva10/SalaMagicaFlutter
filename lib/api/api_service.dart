@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../model/reserva.dart';
 import '../model/recurso.dart';
@@ -8,39 +6,54 @@ import '../model/recurso.dart';
 class ApiService {
   // ========== CONFIGURAÇÃO DE URL ==========
   
-  // NGROK (Produção/Compartilhamento) - mesma URL do projeto React
+  // URL do ngrok
   static const String baseUrl = 'https://unarrested-unreverentially-valeria.ngrok-free.dev';
-  
-  /* LOCALHOST (Desenvolvimento local) - descomente para usar
-   static String get baseUrl {
-     if (kIsWeb) {
-       return 'http://localhost:8080';
-     } else if (Platform.isAndroid) {
-       return 'http://10.0.2.2:8080';
-     } else {
-       return 'http://localhost:8080';
-     }
-  */  // }
   
   // Headers (ngrok precisa do skip-browser-warning)
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true', // remova se usar localhost
+    'ngrok-skip-browser-warning': 'true',
   };
+  
+  // Timeout para requisições
+  static const Duration timeout = Duration(seconds: 10);
 
   // LOGIN
   static Future<http.Response> login(String email, String senha) async {
-    return await http.post(
-      Uri.parse('$baseUrl/usuarios/login'),
-      headers: headers,
-      body: jsonEncode({'email': email, 'senha': senha}),
-    );
+    try {
+      print('🔗 Tentando conectar em: $baseUrl/alunos/login');
+      print('📧 Email: $email');
+      print('🔑 Headers: $headers');
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/alunos/login'),
+        headers: headers,
+        body: jsonEncode({'email': email, 'senha': senha}),
+      ).timeout(timeout);
+      
+      print('✅ Status: ${response.statusCode}');
+      print('📄 Response Body: ${response.body}');
+      print('📄 Response Headers: ${response.headers}');
+      
+      // Verificar se a resposta é válida
+      if (response.body.isEmpty) {
+        print('⚠️ Response body está vazio!');
+      }
+      
+      return response;
+    } catch (e) {
+      print('❌ Erro: $e');
+      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
+        throw Exception('Erro de conexão: Verifique se o servidor está rodando');
+      }
+      rethrow;
+    }
   }
 
   // PERFIL
   static Future<Map<String, dynamic>?> buscarPerfil(String email) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/usuarios/perfil?email=$email'),
+      Uri.parse('$baseUrl/alunos/perfil?email=$email'),
       headers: headers,
     );
     if (response.statusCode == 200) {
@@ -52,7 +65,7 @@ class ApiService {
 
   static Future<http.Response> atualizarPerfil(Map<String, dynamic> perfil) async {
     return await http.put(
-      Uri.parse('$baseUrl/usuarios/${perfil['id']}'),
+      Uri.parse('$baseUrl/alunos/${perfil['id']}'),
       headers: headers,
       body: jsonEncode(perfil),
     );
@@ -60,11 +73,24 @@ class ApiService {
 
   // CADASTRO
   static Future<http.Response> cadastrarUsuario(Map<String, dynamic> usuario) async {
-    return await http.post(
-      Uri.parse('$baseUrl/usuarios'),
-      headers: headers,
-      body: jsonEncode(usuario),
-    );
+    try {
+      print('🚀 Cadastrando usuário em: $baseUrl/alunos');
+      print('📄 Dados: ${jsonEncode(usuario)}');
+      print('🔑 Headers: $headers');
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/alunos'),
+        headers: headers,
+        body: jsonEncode(usuario),
+      ).timeout(timeout);
+      
+      print('✅ Cadastro - Status: ${response.statusCode}');
+      print('📄 Cadastro - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro no cadastro: $e');
+      rethrow;
+    }
   }
 
   static Future<http.Response> enviarReservaSala(
@@ -95,15 +121,29 @@ class ApiService {
   }
 
   static Future<List<Reserva>> buscarReservasPorUsuario(int idUsuario) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/reservas/user/$idUsuario'),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      final List<dynamic> dados = jsonDecode(response.body);
-      return dados.map((r) => Reserva.fromJson(r)).toList();
-    } else {
-      throw Exception('Erro ao buscar reservas');
+    try {
+      print('🚀 Buscando reservas em: $baseUrl/reservas/user/$idUsuario');
+      final response = await http.get(
+        Uri.parse('$baseUrl/reservas/user/$idUsuario'),
+        headers: headers,
+      ).timeout(timeout);
+      
+      print('✅ Status reservas: ${response.statusCode}');
+      print('📄 Response reservas: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> dados = jsonDecode(response.body);
+        print('📄 ${dados.length} reservas encontradas');
+        return dados.map((r) => Reserva.fromJson(r)).toList();
+      } else if (response.statusCode == 404) {
+        print('📄 Nenhuma reserva encontrada para o usuário');
+        return [];
+      } else {
+        throw Exception('Erro no servidor: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Erro ao buscar reservas: $e');
+      rethrow;
     }
   }
 
@@ -128,7 +168,7 @@ class ApiService {
   // ESQUECI A SENHA
   static Future<http.Response> esqueciSenha(String email) async {
     return await http.post(
-      Uri.parse('$baseUrl/usuarios/esqueci-senha'),
+      Uri.parse('$baseUrl/alunos/esqueci-senha'),
       headers: headers,
       body: jsonEncode({'email': email}),
     );
@@ -137,7 +177,7 @@ class ApiService {
   // REDEFINIR SENHA
   static Future<http.Response> redefinirSenha(String email, String codigo, String novaSenha) async {
     return await http.post(
-      Uri.parse('$baseUrl/usuarios/redefinir-senha'),
+      Uri.parse('$baseUrl/alunos/redefinir-senha'),
       headers: headers,
       body: jsonEncode({
         'email': email,
@@ -150,7 +190,7 @@ class ApiService {
   // VERIFICAR CÓDIGO
   static Future<http.Response> verificarCodigo(String email, String codigo) async {
     return await http.post(
-      Uri.parse('$baseUrl/usuarios/verificar-codigo'),
+      Uri.parse('$baseUrl/alunos/verificar-codigo'),
       headers: headers,
       body: jsonEncode({
         'email': email,

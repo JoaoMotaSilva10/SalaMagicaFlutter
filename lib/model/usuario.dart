@@ -2,43 +2,46 @@ class Usuario {
   final int id;
   final String nome;
   final String email;
-  final String nivelAcesso;
   final String statusUsuario;
-  final int? rm;
+  final String? rm;
   final String? cpf;
   final String? turma;
-  final String? unidade;
   final String? serie;
   final String? periodo;
+  final String tipoUsuario;
 
   Usuario({
     required this.id,
     required this.nome,
     required this.email,
-    required this.nivelAcesso,
     required this.statusUsuario,
     this.rm,
     this.cpf,
     this.turma,
-    this.unidade,
     this.serie,
     this.periodo,
+    required this.tipoUsuario,
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) {
-    return Usuario(
-      id: json['id'],
-      nome: json['nome'],
-      email: json['email'],
-      nivelAcesso: json['nivelAcesso'],
-      statusUsuario: json['statusUsuario'],
-      rm: json['rm'],
-      cpf: json['cpf'],
-      turma: json['turma'],
-      unidade: json['unidade'],
-      serie: json['serie'],
-      periodo: json['periodo'],
-    );
+    try {
+      return Usuario(
+        id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+        nome: json['nome']?.toString() ?? 'Sem nome',
+        email: json['email']?.toString() ?? 'Sem email',
+        statusUsuario: json['statusUsuario']?.toString() ?? 'ATIVO',
+        rm: json['rm']?.toString(),
+        cpf: json['cpf']?.toString(),
+        turma: json['turma']?.toString(),
+        serie: json['serie']?.toString(),
+        periodo: json['periodo']?.toString(),
+        tipoUsuario: json['tipoUsuario']?.toString() ?? 'ALUNO',
+      );
+    } catch (e) {
+      print('Erro ao criar Usuario: $e');
+      print('JSON recebido: $json');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -46,14 +49,13 @@ class Usuario {
       'id': id,
       'nome': nome,
       'email': email,
-      'nivelAcesso': nivelAcesso,
       'statusUsuario': statusUsuario,
       'rm': rm,
       'cpf': cpf,
       'turma': turma,
-      'unidade': unidade,
       'serie': serie,
       'periodo': periodo,
+      'tipoUsuario': tipoUsuario,
     };
   }
 

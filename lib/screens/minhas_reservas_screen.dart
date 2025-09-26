@@ -32,14 +32,17 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
     });
 
     try {
+      print('🚀 Carregando reservas para usuário ID: ${widget.usuario.id}');
       final lista = await ApiService.buscarReservasPorUsuario(
         widget.usuario.id,
       );
+      print('✅ Reservas carregadas: ${lista.length}');
       setState(() {
         reservas = lista;
       });
     } catch (e) {
-      setState(() => erro = 'Erro ao carregar reservas.');
+      print('❌ Erro ao carregar reservas: $e');
+      setState(() => erro = 'Erro ao carregar reservas: $e');
     } finally {
       setState(() => carregando = false);
     }
