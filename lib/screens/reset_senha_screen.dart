@@ -10,7 +10,8 @@ class ResetSenhaScreen extends StatefulWidget {
 }
 
 class _ResetSenhaScreenState extends State<ResetSenhaScreen> {
-  final TextEditingController _tokenController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _codigoController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmarSenhaController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -30,7 +31,8 @@ class _ResetSenhaScreenState extends State<ResetSenhaScreen> {
 
     try {
       final response = await ApiService.redefinirSenha(
-        _tokenController.text.trim(),
+        _emailController.text.trim(),
+        _codigoController.text.trim(),
         _senhaController.text,
       );
       if (response.statusCode == 200) {
@@ -53,12 +55,22 @@ class _ResetSenhaScreenState extends State<ResetSenhaScreen> {
     }
   }
 
-  String? _validarToken(String? value) {
+  String? _validarEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, digite seu e-mail';
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Digite um e-mail válido';
+    }
+    return null;
+  }
+
+  String? _validarCodigo(String? value) {
     if (value == null || value.isEmpty) {
       return 'Por favor, digite o código recebido';
     }
-    if (value.length < 6) {
-      return 'O código deve ter pelo menos 6 caracteres';
+    if (value.length != 6) {
+      return 'O código deve ter 6 dígitos';
     }
     return null;
   }
@@ -113,18 +125,30 @@ class _ResetSenhaScreenState extends State<ResetSenhaScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Digite o código recebido por e-mail e crie uma nova senha.',
+              'Digite seu e-mail, o código recebido e crie uma nova senha.',
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
+            const Text('E-mail'),
+            const SizedBox(height: 6),
+            TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: _validarEmail,
+              decoration: const InputDecoration(
+                hintText: 'Digite seu e-mail',
+                prefixIcon: Icon(Icons.email_outlined),
+              ),
+            ),
+            const SizedBox(height: 20),
             const Text('Código de recuperação'),
             const SizedBox(height: 6),
             TextFormField(
-              controller: _tokenController,
-              keyboardType: TextInputType.text,
-              validator: _validarToken,
+              controller: _codigoController,
+              keyboardType: TextInputType.number,
+              validator: _validarCodigo,
               decoration: const InputDecoration(
-                hintText: 'Digite o código recebido',
+                hintText: 'Digite o código de 6 dígitos',
                 prefixIcon: Icon(Icons.security),
               ),
             ),
