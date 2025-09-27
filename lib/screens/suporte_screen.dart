@@ -36,10 +36,12 @@ class _SuporteScreenState extends State<SuporteScreen> {
     }
 
     final mensagem = {
+      'dataMensagem': DateTime.now().toIso8601String(),
       'emissor': widget.usuario.nome,
       'email': widget.usuario.email,
+      'rm': widget.usuario.rm,
       'texto': _messageController.text.trim(),
-      'statusMensagem': selectedOption ?? 'outros',
+      'statusMensagem': 'ATIVO',
     };
 
     try {

@@ -95,36 +95,63 @@ class ApiService {
 
   static Future<http.Response> enviarReservaSala(
       Map<String, dynamic> reserva) async {
-    return await http.post(
-      Uri.parse('$baseUrl/reservas'),
-      headers: headers,
-      body: jsonEncode(reserva),
-    );
+    try {
+      print('🚀 Enviando reserva de sala: ${jsonEncode(reserva)}');
+      final response = await http.post(
+        Uri.parse('$baseUrl/reservas'),
+        headers: headers,
+        body: jsonEncode(reserva),
+      ).timeout(timeout);
+      print('✅ Reserva sala - Status: ${response.statusCode}');
+      print('📄 Reserva sala - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro ao enviar reserva de sala: $e');
+      rethrow;
+    }
   }
 
   static Future<http.Response> enviarReservaEquipamento(
       Map<String, dynamic> reserva) async {
-    return await http.post(
-      Uri.parse('$baseUrl/reservas'),
-      headers: headers,
-      body: jsonEncode(reserva),
-    );
+    try {
+      print('🚀 Enviando reserva de equipamento: ${jsonEncode(reserva)}');
+      final response = await http.post(
+        Uri.parse('$baseUrl/reservas'),
+        headers: headers,
+        body: jsonEncode(reserva),
+      ).timeout(timeout);
+      print('✅ Reserva equipamento - Status: ${response.statusCode}');
+      print('📄 Reserva equipamento - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro ao enviar reserva de equipamento: $e');
+      rethrow;
+    }
   }
 
   static Future<http.Response> enviarMensagemSuporte(
-      Map<String, String> mensagem) async {
-    return await http.post(
-      Uri.parse('$baseUrl/mensagens'),
-      headers: headers,
-      body: jsonEncode(mensagem),
-    );
+      Map<String, dynamic> mensagem) async {
+    try {
+      print('🚀 Enviando mensagem de suporte: ${jsonEncode(mensagem)}');
+      final response = await http.post(
+        Uri.parse('$baseUrl/mensagens'),
+        headers: headers,
+        body: jsonEncode(mensagem),
+      ).timeout(timeout);
+      print('✅ Mensagem suporte - Status: ${response.statusCode}');
+      print('📄 Mensagem suporte - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro ao enviar mensagem de suporte: $e');
+      rethrow;
+    }
   }
 
   static Future<List<Reserva>> buscarReservasPorUsuario(int idUsuario) async {
     try {
-      print('🚀 Buscando reservas em: $baseUrl/reservas/user/$idUsuario');
+      print('🚀 Buscando reservas em: $baseUrl/reservas/pessoa/$idUsuario');
       final response = await http.get(
-        Uri.parse('$baseUrl/reservas/user/$idUsuario'),
+        Uri.parse('$baseUrl/reservas/pessoa/$idUsuario'),
         headers: headers,
       ).timeout(timeout);
       

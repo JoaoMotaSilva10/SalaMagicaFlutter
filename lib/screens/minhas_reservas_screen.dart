@@ -115,7 +115,11 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
     final data = DateFormat('dd/MM/yyyy').format(reserva.dataReservada);
     final hora = DateFormat('HH:mm').format(reserva.dataReservada);
     final tipo = reserva.recurso.tipo;
-    final local = reserva.recurso.descricao;
+    
+    print('📝 Construindo card para reserva ID: ${reserva.id}');
+    print('📝 Recurso: ${reserva.recurso.nome}');
+    print('📝 Status: $status');
+    print('📝 Data: $data $hora');
 
     return Card(
       elevation: 2,
@@ -160,9 +164,11 @@ class _MinhasReservasScreenState extends State<MinhasReservasScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildInfoRow(Icons.devices_other, 'Tipo: $tipo'),
+            _buildInfoRow(Icons.info, 'Informação: ${reserva.informacao}'),
             const SizedBox(height: 8),
-            _buildInfoRow(Icons.location_on, 'Local: $local'),
+            _buildInfoRow(Icons.devices_other, 'Recurso: ${reserva.recurso.nome}'),
+            const SizedBox(height: 8),
+            _buildInfoRow(Icons.location_on, 'Tipo: $tipo'),
           ],
         ),
       ),

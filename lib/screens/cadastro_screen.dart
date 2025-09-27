@@ -46,9 +46,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
       "senha": _senhaController.text.trim(),
       "statusUsuario": "ATIVO",
       "tipoUsuario": "ALUNO",
-      "rm": _rmController.text.trim().isNotEmpty ? _rmController.text.trim() : null,
-      "cpf": _cpfController.text.trim().isNotEmpty ? _cpfController.text.trim() : null,
-      "turma": _turmaController.text.trim().isNotEmpty ? _turmaController.text.trim() : null,
+      "rm": _rmController.text.trim(),
+      "cpf": _cpfController.text.trim(),
+      "turma": _turmaController.text.trim(),
       "serie": _serieEscolhida,
       "periodo": _periodoEscolhido,
     };
@@ -258,7 +258,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     const SizedBox(height: 24),
 
                     const Text(
-                      'RM (opcional)',
+                      'RM',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -274,11 +274,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         hintText: 'Digite seu RM',
                         prefixIcon: Icon(Icons.badge, color: Color(0xFF7e3ff2)),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe seu RM';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24),
 
                     const Text(
-                      'CPF (opcional)',
+                      'CPF',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -294,11 +300,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         hintText: 'Digite seu CPF',
                         prefixIcon: Icon(Icons.credit_card, color: Color(0xFF7e3ff2)),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe seu CPF';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24),
 
                     const Text(
-                      'Turma (opcional)',
+                      'Turma',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -313,6 +325,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         hintText: 'Ex: inf3cm',
                         prefixIcon: Icon(Icons.class_, color: Color(0xFF7e3ff2)),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe sua turma';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24),
 

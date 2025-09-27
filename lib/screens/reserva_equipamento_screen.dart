@@ -79,8 +79,8 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
       "informacao": "Reserva de ${_equipamentoSelecionado!.nome}",
       "dataReservada": dataHora.toIso8601String(),
       "statusReserva": "EM_ANALISE",
-      "usuario": widget.usuario.toJson(),
-      "recurso": _equipamentoSelecionado!.toJson(),
+      "pessoa": {"id": widget.usuario.id},
+      "recurso": {"id": _equipamentoSelecionado!.id},
     };
 
     try {
