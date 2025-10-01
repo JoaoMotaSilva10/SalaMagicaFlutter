@@ -40,6 +40,7 @@ class _SuporteScreenState extends State<SuporteScreen> {
       'emissor': widget.usuario.nome,
       'email': widget.usuario.email,
       'rm': widget.usuario.rm,
+      'assunto': selectedOption!,
       'texto': _messageController.text.trim(),
       'statusMensagem': 'ATIVO',
     };
