@@ -235,6 +235,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             _buildProfileItem(context, 'Série:', widget.usuario.serie ?? '-'),
                             _buildProfileItem(context, 'Período:', widget.usuario.periodo ?? '-'),
                             _buildProfileItem(context, 'CPF:', widget.usuario.cpf ?? '-'),
+                            _buildUnidadeItem(context),
                             _buildProfileItem(context, 'Tipo:', widget.usuario.tipoUsuario),
                             _buildProfileItem(context, 'Status:', widget.usuario.statusUsuario),
                             const SizedBox(height: 32),
@@ -297,5 +298,144 @@ class _PerfilScreenState extends State<PerfilScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildUnidadeItem(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1f1f1f), Color(0xFF2a2a2a)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF6200ea).withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            width: 80,
+            child: Text(
+              'Unidade:',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF7e3ff2),
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              widget.usuario.unidade ?? '-',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit, color: Color(0xFF7e3ff2), size: 20),
+            onPressed: () => _editarUnidade(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editarUnidade() {
+    final controller = TextEditingController(text: widget.usuario.unidade ?? '');
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1f1f1f),
+        title: const Text(
+          'Editar Unidade',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Digite a unidade',
+            hintStyle: TextStyle(color: Colors.grey),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF7e3ff2)),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF7e3ff2)),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final novaUnidade = controller.text.trim();
+              Navigator.of(ctx).pop();
+              await _salvarUnidade(novaUnidade);
+            },
+            child: const Text('Salvar', style: TextStyle(color: Color(0xFF7e3ff2))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _salvarUnidade(String unidade) async {
+    try {
+      final response = await ApiService.atualizarUnidade(widget.usuario.id, unidade);
+      
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unidade atualizada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Recarregar a tela para mostrar a atualização
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PerfilScreen(
+              usuario: Usuario(
+                id: widget.usuario.id,
+                nome: widget.usuario.nome,
+                email: widget.usuario.email,
+                statusUsuario: widget.usuario.statusUsuario,
+                rm: widget.usuario.rm,
+                cpf: widget.usuario.cpf,
+                turma: widget.usuario.turma,
+                serie: widget.usuario.serie,
+                periodo: widget.usuario.periodo,
+                unidade: unidade,
+                tipoUsuario: widget.usuario.tipoUsuario,
+              ),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao atualizar unidade'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro de conexão'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

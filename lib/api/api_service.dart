@@ -266,4 +266,22 @@ class ApiService {
       throw Exception('Erro ao buscar mensagens');
     }
   }
+
+  // ATUALIZAR UNIDADE
+  static Future<http.Response> atualizarUnidade(int idUsuario, String unidade) async {
+    try {
+      print('🚀 Atualizando unidade do usuário $idUsuario para: $unidade');
+      final response = await http.put(
+        Uri.parse('$baseUrl/alunos/$idUsuario'),
+        headers: headers,
+        body: jsonEncode({'unidade': unidade}),
+      ).timeout(timeout);
+      print('✅ Atualização unidade - Status: ${response.statusCode}');
+      print('📄 Atualização unidade - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro ao atualizar unidade: $e');
+      rethrow;
+    }
+  }
 }

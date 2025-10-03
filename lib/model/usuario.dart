@@ -8,6 +8,7 @@ class Usuario {
   final String? turma;
   final String? serie;
   final String? periodo;
+  final String? unidade;
   final String tipoUsuario;
 
   Usuario({
@@ -20,6 +21,7 @@ class Usuario {
     this.turma,
     this.serie,
     this.periodo,
+    this.unidade,
     required this.tipoUsuario,
   });
 
@@ -35,6 +37,7 @@ class Usuario {
         turma: json['turma']?.toString(),
         serie: json['serie']?.toString(),
         periodo: json['periodo']?.toString(),
+        unidade: json['unidade']?.toString(),
         tipoUsuario: json['tipoUsuario']?.toString() ?? 'ALUNO',
       );
     } catch (e) {
@@ -55,6 +58,7 @@ class Usuario {
       'turma': turma,
       'serie': serie,
       'periodo': periodo,
+      'unidade': unidade,
       'tipoUsuario': tipoUsuario,
     };
   }
