@@ -64,11 +64,21 @@ class ApiService {
   }
 
   static Future<http.Response> atualizarPerfil(Map<String, dynamic> perfil) async {
-    return await http.put(
-      Uri.parse('$baseUrl/alunos/${perfil['id']}'),
-      headers: headers,
-      body: jsonEncode(perfil),
-    );
+    try {
+      final userId = perfil['usuario']['id'];
+      print('🚀 Atualizando perfil do usuário $userId: ${jsonEncode(perfil)}');
+      final response = await http.put(
+        Uri.parse('$baseUrl/alunos/$userId'),
+        headers: headers,
+        body: jsonEncode(perfil),
+      ).timeout(timeout);
+      print('✅ Atualizar perfil - Status: ${response.statusCode}');
+      print('📄 Atualizar perfil - Response: ${response.body}');
+      return response;
+    } catch (e) {
+      print('❌ Erro ao atualizar perfil: $e');
+      rethrow;
+    }
   }
 
   // CADASTRO
@@ -267,21 +277,5 @@ class ApiService {
     }
   }
 
-  // ATUALIZAR UNIDADE
-  static Future<http.Response> atualizarUnidade(int idUsuario, String unidade) async {
-    try {
-      print('🚀 Atualizando unidade do usuário $idUsuario para: $unidade');
-      final response = await http.put(
-        Uri.parse('$baseUrl/alunos/$idUsuario'),
-        headers: headers,
-        body: jsonEncode({'unidade': unidade}),
-      ).timeout(timeout);
-      print('✅ Atualização unidade - Status: ${response.statusCode}');
-      print('📄 Atualização unidade - Response: ${response.body}');
-      return response;
-    } catch (e) {
-      print('❌ Erro ao atualizar unidade: $e');
-      rethrow;
-    }
-  }
+
 }

@@ -123,7 +123,7 @@ class InicioScreen extends StatelessWidget {
                       _buildMenuButton(
                         context,
                         icon: Icons.desktop_mac,
-                        label: 'Reservar Equipamento',
+                        label: 'Equipamentos',
                         onTap: () => Navigator.pushNamed(
                           context,
                           AppRoutes.reservarEquipamento,
@@ -133,7 +133,7 @@ class InicioScreen extends StatelessWidget {
                       _buildMenuButton(
                         context,
                         icon: Icons.calendar_month,
-                        label: 'Minhas Reservas',
+                        label: 'Reservas',
                         onTap: () => Navigator.pushNamed(
                           context,
                           AppRoutes.minhasReservas,

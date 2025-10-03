@@ -19,6 +19,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final _rmController = TextEditingController();
   final _cpfController = TextEditingController();
   final _turmaController = TextEditingController();
+  final _unidadeController = TextEditingController();
 
   bool _carregando = false;
   bool _mostrarSenha = false;
@@ -49,6 +50,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
       "rm": _rmController.text.trim(),
       "cpf": _cpfController.text.trim(),
       "turma": _turmaController.text.trim(),
+      "unidade": _unidadeController.text.trim(),
       "serie": _serieEscolhida,
       "periodo": _periodoEscolhido,
     };
@@ -328,6 +330,31 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Informe sua turma';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Unidade',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _unidadeController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'Ex: Tatuapé, Vila Maria',
+                        prefixIcon: Icon(Icons.location_on, color: Color(0xFF7e3ff2)),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe sua unidade';
                         }
                         return null;
                       },

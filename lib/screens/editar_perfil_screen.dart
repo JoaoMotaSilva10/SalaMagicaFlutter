@@ -36,12 +36,12 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   }
 
   void _preencherCampos() {
-    _rmController.text = widget.perfil['rm']?.toString() ?? '';
-    _unidadeController.text = widget.perfil['unidade']?.toString() ?? '';
-    _turmaController.text = widget.perfil['turma']?.toString() ?? '';
-    _serieController.text = widget.perfil['serie']?.toString() ?? '';
-    _periodoController.text = widget.perfil['periodo']?.toString() ?? '';
-    _cpfController.text = widget.perfil['cpf']?.toString() ?? '';
+    _rmController.text = widget.perfil['rm']?.toString() ?? widget.usuario.rm ?? '';
+    _unidadeController.text = widget.perfil['unidade']?.toString() ?? widget.usuario.unidade ?? '';
+    _turmaController.text = widget.perfil['turma']?.toString() ?? widget.usuario.turma ?? '';
+    _serieController.text = widget.perfil['serie']?.toString() ?? widget.usuario.serie ?? '';
+    _periodoController.text = widget.perfil['periodo']?.toString() ?? widget.usuario.periodo ?? '';
+    _cpfController.text = widget.perfil['cpf']?.toString() ?? widget.usuario.cpf ?? '';
   }
 
   Future<void> _salvarPerfil() async {
@@ -51,17 +51,22 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
     final perfilAtualizado = {
       'id': widget.perfil['id'],
-      'usuario': widget.perfil['usuario'],
-      'rm': _rmController.text.trim(),
-      'unidade': _unidadeController.text.trim(),
-      'turma': _turmaController.text.trim(),
-      'serie': _serieController.text.trim(),
-      'periodo': _periodoController.text.trim(),
-      'cpf': _cpfController.text.trim(),
+      'usuario': {
+        'id': widget.usuario.id,
+        'nome': widget.usuario.nome,
+        'email': widget.usuario.email,
+      },
+      'rm': _rmController.text.trim().isEmpty ? null : _rmController.text.trim(),
+      'unidade': _unidadeController.text.trim().isEmpty ? null : _unidadeController.text.trim(),
+      'turma': _turmaController.text.trim().isEmpty ? null : _turmaController.text.trim(),
+      'serie': _serieController.text.trim().isEmpty ? null : _serieController.text.trim(),
+      'periodo': _periodoController.text.trim().isEmpty ? null : _periodoController.text.trim(),
+      'cpf': _cpfController.text.trim().isEmpty ? null : _cpfController.text.trim(),
     };
 
     try {
       final response = await ApiService.atualizarPerfil(perfilAtualizado);
+      
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil atualizado com sucesso!')),
