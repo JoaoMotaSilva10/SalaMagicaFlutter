@@ -5,6 +5,7 @@ import 'package:sala_magica/model/usuario.dart';
 import 'package:sala_magica/screens/inicio_screen.dart';
 import '../api/api_service.dart';
 import '../routes.dart';
+import '../services/auth_service.dart';
 import '../widgets/gradient_background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,6 +22,29 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _manterConexao = false;
   bool _mostrarSenha = false;
   String? _erro;
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarUsuarioSalvo();
+  }
+
+  Future<void> _verificarUsuarioSalvo() async {
+    final usuario = await AuthService.carregarUsuario();
+    
+    if (usuario != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => InicioScreen(usuario: usuario)),
+      );
+    }
+  }
+
+  Future<void> _salvarUsuario(Usuario usuario) async {
+    if (_manterConexao) {
+      await AuthService.salvarUsuario(usuario);
+    }
+  }
 
   Future<void> _login() async {
     setState(() {
@@ -46,8 +70,22 @@ class _LoginScreenState extends State<LoginScreen> {
         try {
           final responseData = jsonDecode(response.body);
           
+          // Debug: verificar dados do login
+          print('🔍 DEBUG LOGIN - Response do backend:');
+          print('📄 ${jsonEncode(responseData)}');
+          
           if (responseData is Map<String, dynamic>) {
             final perfil = Usuario.fromJson(responseData);
+            
+            // Debug: verificar dados do usuário criado
+            print('🔍 DEBUG LOGIN - Usuário criado:');
+            print('📄 Nome: ${perfil.nome}');
+            print('📄 Email: ${perfil.email}');
+            print('📄 RM: ${perfil.rm}');
+            print('📄 ID: ${perfil.id}');
+
+            // Salvar usuário se "manter conexão" estiver marcado
+            await _salvarUsuario(perfil);
 
             Navigator.pushReplacement(
               context,

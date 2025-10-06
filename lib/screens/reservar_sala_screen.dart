@@ -78,7 +78,7 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
       "informacao": "Reserva de ${_salaSelecionada!.nome}",
       "dataReservada": dataHora.toIso8601String(),
       "statusReserva": "EM_ANALISE",
-      "pessoa": {"id": widget.usuario.id},
+      "pessoaId": widget.usuario.id,
       "recurso": {"id": _salaSelecionada!.id},
     };
 

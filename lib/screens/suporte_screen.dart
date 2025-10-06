@@ -35,11 +35,18 @@ class _SuporteScreenState extends State<SuporteScreen> {
       return;
     }
 
+    // Debug: verificar dados do usuário
+    print('🔍 DEBUG - Dados do usuário:');
+    print('📄 Nome: ${widget.usuario.nome}');
+    print('📄 Email: ${widget.usuario.email}');
+    print('📄 RM: ${widget.usuario.rm}');
+    print('📄 ID: ${widget.usuario.id}');
+    
     final mensagem = {
       'dataMensagem': DateTime.now().toIso8601String(),
       'emissor': widget.usuario.nome,
       'email': widget.usuario.email,
-      'rm': widget.usuario.rm,
+      'rm': widget.usuario.rm ?? 'N/A',
       'assunto': selectedOption!,
       'texto': _messageController.text.trim(),
       'statusMensagem': 'ATIVO',

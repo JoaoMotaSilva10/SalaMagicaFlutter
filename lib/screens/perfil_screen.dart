@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../model/usuario.dart';
+import '../services/auth_service.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
 import '../routes.dart';
@@ -95,8 +96,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(ctx).pop();
+              // Limpar dados salvos
+              await AuthService.logout();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),

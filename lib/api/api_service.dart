@@ -261,7 +261,165 @@ class ApiService {
 
   // CONFIRMAR REALIZAÇÃO DA RESERVA
   static Future<http.Response> confirmarRealizacao(int reservaId) async {
-    return await atualizarReserva(reservaId, {'statusReserva': 'REALIZADA'});
+    return await http.put(
+      Uri.parse('$baseUrl/reservas/$reservaId/confirmar'),
+      headers: headers,
+    );
+  }
+
+  // DELETAR RESERVA
+  static Future<http.Response> deletarReserva(int id) async {
+    return await http.delete(
+      Uri.parse('$baseUrl/reservas/$id'),
+      headers: headers,
+    );
+  }
+
+  // BUSCAR RESERVA POR ID
+  static Future<Reserva?> buscarReservaPorId(int id) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/$id'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return Reserva.fromJson(jsonDecode(response.body));
+    } else {
+      return null;
+    }
+  }
+
+  // RESERVAS POR RECURSO
+  static Future<List<Reserva>> buscarReservasPorRecurso(int recursoId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/recurso/$recursoId'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> dados = jsonDecode(response.body);
+      return dados.map((r) => Reserva.fromJson(r)).toList();
+    } else {
+      throw Exception('Erro ao buscar reservas do recurso');
+    }
+  }
+
+  // ESTATÍSTICAS DE RESERVAS
+  static Future<int> contarTodasReservas() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/count'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception('Erro ao contar reservas');
+    }
+  }
+
+  static Future<int> contarReservasHoje() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/count/today'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception('Erro ao contar reservas de hoje');
+    }
+  }
+
+  static Future<int> contarReservasPendentes() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/count/pendentes'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception('Erro ao contar reservas pendentes');
+    }
+  }
+
+  static Future<int> contarReservasMarcadas() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/count/marcadas'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception('Erro ao contar reservas marcadas');
+    }
+  }
+
+  static Future<int> contarReservasRealizadas() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/count/realizadas'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return int.parse(response.body);
+    } else {
+      throw Exception('Erro ao contar reservas realizadas');
+    }
+  }
+
+  // DEBUG - LISTAR TODAS AS RESERVAS
+  static Future<List<Reserva>> debugReservas() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/reservas/debug'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> dados = jsonDecode(response.body);
+      return dados.map((r) => Reserva.fromJson(r)).toList();
+    } else {
+      throw Exception('Erro no debug de reservas');
+    }
+  }
+
+  // DEBUG - TESTAR FLUXO COMPLETO
+  static Future<void> debugFluxoReserva(Map<String, dynamic> reserva, int idUsuario) async {
+    print('🔍 === DEBUG FLUXO RESERVA ===');
+    print('👤 ID do usuário logado: $idUsuario');
+    print('📤 Dados enviados: ${jsonEncode(reserva)}');
+    
+    // 1. Enviar reserva
+    final envioResponse = await http.post(
+      Uri.parse('$baseUrl/reservas'),
+      headers: headers,
+      body: jsonEncode(reserva),
+    );
+    print('📥 Resposta envio - Status: ${envioResponse.statusCode}');
+    print('📥 Resposta envio - Body: ${envioResponse.body}');
+    
+    // 2. Aguardar um pouco
+    await Future.delayed(Duration(seconds: 2));
+    
+    // 3. Buscar reservas do usuário
+    final buscaResponse = await http.get(
+      Uri.parse('$baseUrl/reservas/pessoa/$idUsuario'),
+      headers: headers,
+    );
+    print('🔍 Busca reservas - Status: ${buscaResponse.statusCode}');
+    print('🔍 Busca reservas - Body: ${buscaResponse.body}');
+    
+    // 4. Buscar todas as reservas (debug)
+    final todasResponse = await http.get(
+      Uri.parse('$baseUrl/reservas/debug'),
+      headers: headers,
+    );
+    print('🔍 Todas reservas - Status: ${todasResponse.statusCode}');
+    print('🔍 Todas reservas - Body: ${todasResponse.body}');
+    
+    // 5. Listar todas as pessoas para verificar IDs
+    final pessoasResponse = await http.get(
+      Uri.parse('$baseUrl/alunos'),
+      headers: headers,
+    );
+    print('👥 Todas as pessoas - Status: ${pessoasResponse.statusCode}');
+    print('👥 Todas as pessoas - Body: ${pessoasResponse.body}');
+    
+    print('🔍 === FIM DEBUG ===');
   }
 
   // BUSCAR MENSAGENS
@@ -276,6 +434,4 @@ class ApiService {
       throw Exception('Erro ao buscar mensagens');
     }
   }
-
-
 }
