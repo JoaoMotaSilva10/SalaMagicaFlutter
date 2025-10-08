@@ -6,13 +6,12 @@ import '../model/recurso.dart';
 class ApiService {
   // ========== CONFIGURAÇÃO DE URL ==========
   
-  // URL do ngrok
-  static const String baseUrl = 'https://unarrested-unreverentially-valeria.ngrok-free.dev';
+  // URL local do Spring Boot
+  static const String baseUrl = 'http://localhost:8080';
   
-  // Headers (ngrok precisa do skip-browser-warning)
+  // Headers padrão
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
   };
   
   // Timeout para requisições
@@ -21,12 +20,12 @@ class ApiService {
   // LOGIN
   static Future<http.Response> login(String email, String senha) async {
     try {
-      print('🔗 Tentando conectar em: $baseUrl/alunos/login');
+      print('🔗 Tentando conectar em: $baseUrl/auth/login');
       print('📧 Email: $email');
       print('🔑 Headers: $headers');
       
       final response = await http.post(
-        Uri.parse('$baseUrl/alunos/login'),
+        Uri.parse('$baseUrl/auth/login'),
         headers: headers,
         body: jsonEncode({'email': email, 'senha': senha}),
       ).timeout(timeout);

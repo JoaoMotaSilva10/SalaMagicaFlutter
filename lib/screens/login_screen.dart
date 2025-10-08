@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:sala_magica/model/usuario.dart';
 import 'package:sala_magica/screens/inicio_screen.dart';
-import '../api/api_service.dart';
 import '../routes.dart';
-import '../services/auth_service.dart';
+import '../services/auth_service_new.dart';
 import '../widgets/gradient_background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,21 +26,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _verificarUsuarioSalvo() async {
-    final usuario = await AuthService.carregarUsuario();
+    final isLoggedIn = await AuthService.isLoggedIn();
     
-    if (usuario != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => InicioScreen(usuario: usuario)),
-      );
+    if (isLoggedIn) {
+      final usuario = await AuthService.getProfile();
+      if (usuario != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => InicioScreen(usuario: usuario)),
+        );
+      }
     }
   }
 
-  Future<void> _salvarUsuario(Usuario usuario) async {
-    if (_manterConexao) {
-      await AuthService.salvarUsuario(usuario);
-    }
-  }
+  // Não precisa mais salvar manualmente, o AuthService já faz isso
 
   Future<void> _login() async {
     setState(() {
@@ -64,46 +59,21 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final response = await ApiService.login(usuario, senha);
-
-      if (response.statusCode == 200) {
-        try {
-          final responseData = jsonDecode(response.body);
-          
-          // Debug: verificar dados do login
-          print('🔍 DEBUG LOGIN - Response do backend:');
-          print('📄 ${jsonEncode(responseData)}');
-          
-          if (responseData is Map<String, dynamic>) {
-            final perfil = Usuario.fromJson(responseData);
-            
-            // Debug: verificar dados do usuário criado
-            print('🔍 DEBUG LOGIN - Usuário criado:');
-            print('📄 Nome: ${perfil.nome}');
-            print('📄 Email: ${perfil.email}');
-            print('📄 RM: ${perfil.rm}');
-            print('📄 ID: ${perfil.id}');
-
-            // Salvar usuário se "manter conexão" estiver marcado
-            await _salvarUsuario(perfil);
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
-            );
-          } else {
-            setState(() => _erro = 'Formato de resposta inválido');
-          }
-        } catch (parseError) {
-          setState(() => _erro = 'Erro ao processar dados do usuário');
-        }
-      } else if (response.statusCode == 401) {
-        setState(() => _erro = 'Email ou senha incorretos');
+      await AuthService.login(usuario, senha);
+      
+      // Buscar perfil do usuário logado
+      final perfil = await AuthService.getProfile();
+      
+      if (perfil != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
+        );
       } else {
-        setState(() => _erro = 'Erro no servidor. Status: ${response.statusCode}');
+        setState(() => _erro = 'Erro ao carregar perfil do usuário');
       }
     } catch (e) {
-      setState(() => _erro = 'Erro de conexão');
+      setState(() => _erro = e.toString().replaceAll('Exception: ', ''));
     } finally {
       setState(() => _carregando = false);
     }

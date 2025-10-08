@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../api/api_service.dart';
+import '../services/auth_service_new.dart';
 import '../model/usuario.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
@@ -21,7 +21,6 @@ class EditarPerfilScreen extends StatefulWidget {
 class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   final _formKey = GlobalKey<FormState>();
   final _rmController = TextEditingController();
-  final _unidadeController = TextEditingController();
   final _turmaController = TextEditingController();
   final _serieController = TextEditingController();
   final _periodoController = TextEditingController();
@@ -37,7 +36,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
   void _preencherCampos() {
     _rmController.text = widget.perfil['rm']?.toString() ?? widget.usuario.rm ?? '';
-    _unidadeController.text = widget.perfil['unidade']?.toString() ?? widget.usuario.unidade ?? '';
     _turmaController.text = widget.perfil['turma']?.toString() ?? widget.usuario.turma ?? '';
     _serieController.text = widget.perfil['serie']?.toString() ?? widget.usuario.serie ?? '';
     _periodoController.text = widget.perfil['periodo']?.toString() ?? widget.usuario.periodo ?? '';
@@ -50,14 +48,9 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     setState(() => _carregando = true);
 
     final perfilAtualizado = {
-      'id': widget.perfil['id'],
-      'usuario': {
-        'id': widget.usuario.id,
-        'nome': widget.usuario.nome,
-        'email': widget.usuario.email,
-      },
+      'nome': widget.usuario.nome,
+      'email': widget.usuario.email,
       'rm': _rmController.text.trim().isEmpty ? null : _rmController.text.trim(),
-      'unidade': _unidadeController.text.trim().isEmpty ? null : _unidadeController.text.trim(),
       'turma': _turmaController.text.trim().isEmpty ? null : _turmaController.text.trim(),
       'serie': _serieController.text.trim().isEmpty ? null : _serieController.text.trim(),
       'periodo': _periodoController.text.trim().isEmpty ? null : _periodoController.text.trim(),
@@ -65,21 +58,15 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     };
 
     try {
-      final response = await ApiService.atualizarPerfil(perfilAtualizado);
+      await AuthService.atualizarPerfil(widget.usuario.id, perfilAtualizado);
       
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil atualizado com sucesso!')),
-        );
-        Navigator.pop(context, true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao atualizar perfil')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Perfil atualizado com sucesso!')),
+      );
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro de conexão')),
+        SnackBar(content: Text('Erro: ${e.toString().replaceAll('Exception: ', '')}')),
       );
     } finally {
       setState(() => _carregando = false);
@@ -136,8 +123,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             child: ListView(
               children: [
                 _buildTextField('RM', _rmController),
-                const SizedBox(height: 16),
-                _buildTextField('Unidade', _unidadeController),
                 const SizedBox(height: 16),
                 _buildTextField('Turma', _turmaController),
                 const SizedBox(height: 16),

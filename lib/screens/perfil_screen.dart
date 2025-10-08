@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../api/api_service.dart';
 import '../model/usuario.dart';
-import '../services/auth_service.dart';
+import '../services/auth_service_new.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
 import '../routes.dart';
@@ -34,29 +33,22 @@ class _PerfilScreenState extends State<PerfilScreen> {
     });
 
     try {
-      final perfilData = await ApiService.buscarPerfil(widget.usuario.email);
-      if (perfilData != null) {
-        setState(() {
-          perfil = perfilData;
-        });
-      } else {
-        // Cria um perfil vazio se não encontrar
+      final usuario = await AuthService.getProfile();
+      if (usuario != null) {
         setState(() {
           perfil = {
-            'id': null,
-            'usuario': {
-              'id': widget.usuario.id,
-              'nome': widget.usuario.nome,
-              'email': widget.usuario.email,
-            },
-            'rm': null,
-            'unidade': null,
-            'turma': null,
-            'serie': null,
-            'periodo': null,
-            'cpf': null,
+            'id': usuario.id,
+            'nome': usuario.nome,
+            'email': usuario.email,
+            'rm': usuario.rm,
+            'turma': usuario.turma,
+            'serie': usuario.serie,
+            'periodo': usuario.periodo,
+            'cpf': usuario.cpf,
           };
         });
+      } else {
+        setState(() => erro = 'Usuário não encontrado.');
       }
     } catch (e) {
       setState(() => erro = 'Erro de conexão.');
@@ -98,12 +90,18 @@ class _PerfilScreenState extends State<PerfilScreen> {
           TextButton(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              // Limpar dados salvos
-              await AuthService.logout();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
+              try {
+                await AuthService.logout();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro no logout: $e')),
+                );
+              }
             },
             child: const Text('Sair'),
           ),
@@ -238,7 +236,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                             _buildProfileItem(context, 'Série:', perfil!['serie']?.toString() ?? widget.usuario.serie ?? '-'),
                             _buildProfileItem(context, 'Período:', perfil!['periodo']?.toString() ?? widget.usuario.periodo ?? '-'),
                             _buildProfileItem(context, 'CPF:', perfil!['cpf']?.toString() ?? widget.usuario.cpf ?? '-'),
-                            _buildProfileItem(context, 'Unidade:', perfil!['unidade']?.toString() ?? widget.usuario.unidade ?? '-'),
+                
                             _buildProfileItem(context, 'Tipo:', widget.usuario.tipoUsuario),
                             _buildProfileItem(context, 'Status:', widget.usuario.statusUsuario),
                             const SizedBox(height: 32),

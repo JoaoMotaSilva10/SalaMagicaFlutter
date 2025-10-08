@@ -30,7 +30,11 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
 
   Future<void> _carregarSalas() async {
     try {
-      final lista = await ApiService.buscarRecursos(tipo: 'AMBIENTE');
+      final ambientes = await ApiService.buscarRecursos(tipo: 'AMBIENTE');
+      final salas = await ApiService.buscarRecursos(tipo: 'SALA');
+      final laboratorios = await ApiService.buscarRecursos(tipo: 'LABORATORIO');
+      
+      final lista = [...ambientes, ...salas, ...laboratorios];
       setState(() => _salas = lista);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
