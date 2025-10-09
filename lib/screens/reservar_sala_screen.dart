@@ -133,11 +133,15 @@ class _ReservarSalaScreenState extends State<ReservarSalaScreen> {
               children: [
               DropdownButtonFormField<Recurso>(
                 value: _salaSelecionada,
+                isExpanded: true,
                 items: _salas
                     .map(
                       (sala) => DropdownMenuItem(
                         value: sala,
-                        child: Text(sala.nome),
+                        child: Text(
+                          sala.nome,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(),
