@@ -6,7 +6,6 @@ import 'screens/editar_perfil_screen.dart';
 import 'screens/reserva_equipamento_screen.dart';
 import 'screens/reservar_sala_screen.dart';
 import 'screens/minhas_reservas_screen.dart';
-import 'screens/minhas_reservas_nova_screen.dart';
 import 'screens/nova_reserva_screen.dart';
 import 'screens/suporte_screen.dart';
 import 'screens/tipo_reserva_screen.dart';
@@ -27,7 +26,7 @@ class AppRoutes {
   static const String reservarEquipamento = '/reserva_equipamento';
   static const String reservarSala = '/reserva_sala';
   static const String minhasReservas = '/minhas_reservas';
-  static const String minhasReservasNova = '/minhas_reservas_nova';
+
   static const String novaReserva = '/nova_reserva';
   static const String mensagens = '/mensagens';
   static const String analise = '/analise';
@@ -85,13 +84,10 @@ class AppRoutes {
 
       case minhasReservas:
         return MaterialPageRoute(
-          builder: (_) => MinhasReservasScreen(usuario: args as Usuario),
+          builder: (_) => const MinhasReservasScreen(),
         );
 
-      case minhasReservasNova:
-        return MaterialPageRoute(
-          builder: (_) => const MinhasReservasNovaScreen(),
-        );
+
 
       case novaReserva:
         final tipoReserva = args as String;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sala_magica/screens/inicio_screen.dart';
 import '../routes.dart';
-import '../services/auth_service_new.dart';
+import '../services/auth_service.dart';
 import '../widgets/gradient_background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -50,6 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final usuario = _usuarioController.text.trim();
     final senha = _senhaController.text.trim();
 
+    print('🔗 Iniciando login...');
+    print('📧 Email: $usuario');
+    print('🔑 Senha: ${senha.isNotEmpty ? "[PREENCHIDA]" : "[VAZIA]"}');
+
     if (usuario.isEmpty || senha.isEmpty) {
       setState(() {
         _erro = 'Preencha todos os campos';
@@ -59,20 +63,27 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      await AuthService.login(usuario, senha);
+      print('🚀 Chamando AuthService.login...');
+      final loginResponse = await AuthService.login(usuario, senha);
+      print('✅ Login bem-sucedido: $loginResponse');
       
       // Buscar perfil do usuário logado
+      print('👤 Buscando perfil do usuário...');
       final perfil = await AuthService.getProfile();
+      print('👤 Perfil obtido: ${perfil?.nome}');
       
       if (perfil != null) {
+        print('🎉 Navegando para tela inicial...');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => InicioScreen(usuario: perfil)),
         );
       } else {
+        print('❌ Perfil é null');
         setState(() => _erro = 'Erro ao carregar perfil do usuário');
       }
     } catch (e) {
+      print('❌ Erro no login: $e');
       setState(() => _erro = e.toString().replaceAll('Exception: ', ''));
     } finally {
       setState(() => _carregando = false);

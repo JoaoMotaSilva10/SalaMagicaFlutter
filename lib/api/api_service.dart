@@ -6,8 +6,8 @@ import '../model/recurso.dart';
 class ApiService {
   // ========== CONFIGURAÇÃO DE URL ==========
   
-  // URL local do Spring Boot
-  static const String baseUrl = 'http://localhost:8080';
+  // URL para emulador Android (10.0.2.2 mapeia para localhost da máquina host)
+  static const String baseUrl = 'http://10.0.2.2:8080';
   
   // Headers padrão
   static Map<String, String> get headers => {
