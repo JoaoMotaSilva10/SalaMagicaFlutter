@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'routes.dart';
 
 void main() {
@@ -13,6 +14,14 @@ class SalaMagicaApp extends StatelessWidget {
     return MaterialApp(
       title: 'Sala Mágica',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+      ],
       theme: ThemeData(
         brightness: Brightness.dark,
         fontFamily: 'Poppins',

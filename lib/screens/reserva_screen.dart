@@ -6,91 +6,82 @@ import '../services/reserva_service.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
 
-class ReservaEquipamentoScreen extends StatefulWidget {
-  const ReservaEquipamentoScreen({super.key});
+class NovaReservaScreen extends StatefulWidget {
+  final String tipoReserva; // 'AMBIENTE' ou 'EQUIPAMENTO'
+
+  const NovaReservaScreen({
+    super.key,
+    required this.tipoReserva,
+  });
 
   @override
-  State<ReservaEquipamentoScreen> createState() => _ReservaEquipamentoScreenState();
+  State<NovaReservaScreen> createState() => _NovaReservaScreenState();
 }
 
-class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
+class _NovaReservaScreenState extends State<NovaReservaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _informacaoController = TextEditingController();
   
-  List<Recurso> _equipamentos = [];
-  Recurso? _equipamentoSelecionado;
+  List<Recurso> _recursos = [];
+  Recurso? _recursoSelecionado;
   DateTime? _dataHoraSelecionada;
   bool _carregando = false;
-  bool _carregandoEquipamentos = true;
+  bool _carregandoRecursos = true;
 
   @override
   void initState() {
     super.initState();
-    _carregarEquipamentos();
+    _carregarRecursos();
   }
 
-  @override
-  void dispose() {
-    _informacaoController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _carregarEquipamentos() async {
+  Future<void> _carregarRecursos() async {
     try {
-      final equipamentos = await ReservaService.buscarEquipamentos();
+      final recursos = await ReservaService.buscarRecursos(tipo: widget.tipoReserva);
       setState(() {
-        _equipamentos = equipamentos;
-        _carregandoEquipamentos = false;
+        _recursos = recursos;
+        _carregandoRecursos = false;
       });
     } catch (e) {
       setState(() {
-        _carregandoEquipamentos = false;
+        _carregandoRecursos = false;
       });
-      _mostrarErro('Erro ao carregar equipamentos: $e');
+      _mostrarErro('Erro ao carregar recursos: $e');
     }
   }
 
   Future<void> _selecionarDataHora() async {
-    try {
-      final data = await showDatePicker(
+    final data = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+      locale: const Locale('pt', 'BR'),
+    );
+
+    if (data != null) {
+      final hora = await showTimePicker(
         context: context,
-        initialDate: _dataHoraSelecionada ?? DateTime.now().add(const Duration(days: 1)),
-        firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(const Duration(days: 365)),
-        locale: const Locale('pt', 'BR'),
+        initialTime: TimeOfDay(hour: 8, minute: 0),
       );
 
-      if (data != null && mounted) {
-        final hora = await showTimePicker(
-          context: context,
-          initialTime: _dataHoraSelecionada != null 
-              ? TimeOfDay.fromDateTime(_dataHoraSelecionada!)
-              : const TimeOfDay(hour: 8, minute: 0),
-        );
-
-        if (hora != null && mounted) {
-          setState(() {
-            _dataHoraSelecionada = DateTime(
-              data.year,
-              data.month,
-              data.day,
-              hora.hour,
-              hora.minute,
-            );
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _mostrarErro('Erro ao selecionar data e hora');
+      if (hora != null) {
+        setState(() {
+          _dataHoraSelecionada = DateTime(
+            data.year,
+            data.month,
+            data.day,
+            hora.hour,
+            hora.minute,
+          );
+        });
       }
     }
   }
 
   Future<void> _criarReserva() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_equipamentoSelecionado == null) {
-      _mostrarErro('Selecione um equipamento');
+    if (_recursoSelecionado == null) {
+      _mostrarErro('Selecione um recurso');
       return;
     }
     if (_dataHoraSelecionada == null) {
@@ -106,13 +97,14 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
         throw Exception('Usuário não logado');
       }
 
+      // Verificar disponibilidade
       final disponivel = await ReservaService.verificarDisponibilidade(
-        _equipamentoSelecionado!.id,
+        _recursoSelecionado!.id,
         _dataHoraSelecionada!,
       );
 
       if (!disponivel) {
-        _mostrarErro('Equipamento não disponível neste horário');
+        _mostrarErro('Recurso não disponível neste horário');
         return;
       }
 
@@ -120,11 +112,11 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
         informacao: _informacaoController.text.trim(),
         dataReservada: _dataHoraSelecionada!,
         pessoaId: usuario.id,
-        recursoId: _equipamentoSelecionado!.id,
+        recursoId: _recursoSelecionado!.id,
       );
 
-      _mostrarSucesso('Reserva de equipamento criada com sucesso!');
-      Navigator.pop(context, true);
+      _mostrarSucesso('Reserva criada com sucesso!');
+      Navigator.pop(context, true); // Retorna true para indicar sucesso
     } catch (e) {
       _mostrarErro('Erro ao criar reserva: $e');
     } finally {
@@ -152,10 +144,12 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final titulo = widget.tipoReserva == 'AMBIENTE' ? 'Reservar Sala' : 'Reservar Equipamento';
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('Reservar Equipamento'),
+        title: Text(titulo),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -169,9 +163,9 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Selecione o equipamento',
-                    style: TextStyle(
+                  Text(
+                    'Selecione o ${widget.tipoReserva == 'AMBIENTE' ? 'ambiente' : 'equipamento'}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -179,11 +173,11 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  if (_carregandoEquipamentos)
+                  if (_carregandoRecursos)
                     const Center(child: CircularProgressIndicator())
-                  else if (_equipamentos.isEmpty)
+                  else if (_recursos.isEmpty)
                     const Text(
-                      'Nenhum equipamento disponível',
+                      'Nenhum recurso disponível',
                       style: TextStyle(color: Colors.white70),
                     )
                   else
@@ -196,22 +190,22 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<Recurso>(
-                          value: _equipamentoSelecionado,
+                          value: _recursoSelecionado,
                           hint: const Text(
-                            'Selecione um equipamento',
+                            'Selecione um recurso',
                             style: TextStyle(color: Colors.white70),
                           ),
                           dropdownColor: const Color(0xFF2a1810),
                           style: const TextStyle(color: Colors.white),
                           isExpanded: true,
-                          items: _equipamentos.map((equipamento) {
+                          items: _recursos.map((recurso) {
                             return DropdownMenuItem<Recurso>(
-                              value: equipamento,
-                              child: Text(equipamento.nome),
+                              value: recurso,
+                              child: Text(recurso.nome),
                             );
                           }).toList(),
-                          onChanged: (equipamento) {
-                            setState(() => _equipamentoSelecionado = equipamento);
+                          onChanged: (recurso) {
+                            setState(() => _recursoSelecionado = recurso);
                           },
                         ),
                       ),
@@ -260,7 +254,7 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                   const SizedBox(height: 24),
                   
                   const Text(
-                    'Motivo da Reserva',
+                    'Informações Adicionais',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -273,12 +267,8 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                     controller: _informacaoController,
                     style: const TextStyle(color: Colors.white),
                     maxLines: 3,
-                    maxLength: 500,
-                    buildCounter: (context, {required currentLength, required isFocused, maxLength}) {
-                      return null;
-                    },
                     decoration: InputDecoration(
-                      hintText: 'Ex: Apresentação de trabalho, aula prática...',
+                      hintText: 'Descreva o motivo da reserva...',
                       hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.1),
@@ -306,7 +296,7 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
                   const Spacer(),
                   
                   ModernButton(
-                    text: 'Reservar Equipamento',
+                    text: 'Criar Reserva',
                     onPressed: _carregando ? null : _criarReserva,
                     isLoading: _carregando,
                   ),
@@ -319,4 +309,9 @@ class _ReservaEquipamentoScreenState extends State<ReservaEquipamentoScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _informacaoController.dispose();
+    super.dispose();
+  }
 }

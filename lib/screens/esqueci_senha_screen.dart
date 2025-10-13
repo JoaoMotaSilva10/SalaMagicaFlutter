@@ -26,7 +26,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
     });
 
     try {
-      final response = await ApiService.esqueciSenha(_emailController.text.trim());
+      final response = await ApiService.enviarCodigoRecuperacao(_emailController.text.trim());
       if (response.statusCode == 200) {
         setState(() {
           _emailEnviado = true;
@@ -276,24 +276,12 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Enviamos um código de 6 dígitos para:',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white.withOpacity(0.8)),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _emailController.text,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          'Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
             fontSize: 16,
           ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Verifique sua caixa de entrada e spam.\nO código expira em 15 minutos.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white.withOpacity(0.7)),
         ),
         const SizedBox(height: 32),
         Container(
@@ -322,7 +310,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
             ),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.resetSenha),
             child: const Text(
-              'Já tenho o código',
+              'Inserir código',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -332,13 +320,15 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Voltar ao login',
-            style: TextStyle(
-              color: Color(0xFF7e3ff2),
-              fontWeight: FontWeight.bold,
+        Center(
+          child: TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Voltar ao login',
+              style: TextStyle(
+                color: Color(0xFF7e3ff2),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

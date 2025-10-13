@@ -4,22 +4,22 @@ class Recurso {
   final String descricao;
   final String tipo; // "EQUIPAMENTO" ou "AMBIENTE"
   final String statusRecurso;
-
-  Recurso({
+  
+  const Recurso({
     required this.id,
-    required this.nome,
-    required this.descricao,
-    required this.tipo,
-    required this.statusRecurso,
+    this.nome = '',
+    this.descricao = '',
+    this.tipo = '',
+    this.statusRecurso = 'ATIVO',
   });
 
   factory Recurso.fromJson(Map<String, dynamic> json) {
     return Recurso(
-      id: json['id'],
-      nome: json['nome'],
-      descricao: json['descricao'],
-      tipo: json['tipo'],
-      statusRecurso: json['statusRecurso'],
+      id: json['id'] as int,
+      nome: json['nome']?.toString() ?? '',
+      descricao: json['descricao']?.toString() ?? '',
+      tipo: json['tipo']?.toString() ?? '',
+      statusRecurso: json['statusRecurso']?.toString() ?? 'ATIVO',
     );
   }
 

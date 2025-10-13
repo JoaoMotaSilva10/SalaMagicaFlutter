@@ -30,7 +30,7 @@ class _ResetSenhaScreenState extends State<ResetSenhaScreen> {
     });
 
     try {
-      final response = await ApiService.redefinirSenha(
+      final response = await ApiService.resetarSenha(
         _emailController.text.trim(),
         _codigoController.text.trim(),
         _senhaController.text,

@@ -1,87 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../model/recurso.dart';
-import '../services/auth_service_new.dart';
+import '../services/auth_service.dart';
 import '../services/reserva_service.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
 
-class NovaReservaScreen extends StatefulWidget {
-  final String tipoReserva; // 'AMBIENTE' ou 'EQUIPAMENTO'
-
-  const NovaReservaScreen({
-    super.key,
-    required this.tipoReserva,
-  });
+class ReservaSalaScreen extends StatefulWidget {
+  const ReservaSalaScreen({super.key});
 
   @override
-  State<NovaReservaScreen> createState() => _NovaReservaScreenState();
+  State<ReservaSalaScreen> createState() => _ReservaSalaScreenState();
 }
 
-class _NovaReservaScreenState extends State<NovaReservaScreen> {
+class _ReservaSalaScreenState extends State<ReservaSalaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _informacaoController = TextEditingController();
   
-  List<Recurso> _recursos = [];
-  Recurso? _recursoSelecionado;
+  List<Recurso> _salas = [];
+  Recurso? _salaSelecionada;
   DateTime? _dataHoraSelecionada;
   bool _carregando = false;
-  bool _carregandoRecursos = true;
+  bool _carregandoSalas = true;
 
   @override
   void initState() {
     super.initState();
-    _carregarRecursos();
+    _carregarSalas();
   }
 
-  Future<void> _carregarRecursos() async {
+  @override
+  void dispose() {
+    _informacaoController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _carregarSalas() async {
     try {
-      final recursos = await ReservaService.buscarRecursos(tipo: widget.tipoReserva);
+      final salas = await ReservaService.buscarSalas();
       setState(() {
-        _recursos = recursos;
-        _carregandoRecursos = false;
+        _salas = salas;
+        _carregandoSalas = false;
       });
     } catch (e) {
       setState(() {
-        _carregandoRecursos = false;
+        _carregandoSalas = false;
       });
-      _mostrarErro('Erro ao carregar recursos: $e');
+      _mostrarErro('Erro ao carregar salas: $e');
     }
   }
 
   Future<void> _selecionarDataHora() async {
-    final data = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
-      locale: const Locale('pt', 'BR'),
-    );
-
-    if (data != null) {
-      final hora = await showTimePicker(
+    try {
+      final data = await showDatePicker(
         context: context,
-        initialTime: TimeOfDay(hour: 8, minute: 0),
+        initialDate: _dataHoraSelecionada ?? DateTime.now().add(const Duration(days: 1)),
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
+        locale: const Locale('pt', 'BR'),
       );
 
-      if (hora != null) {
-        setState(() {
-          _dataHoraSelecionada = DateTime(
-            data.year,
-            data.month,
-            data.day,
-            hora.hour,
-            hora.minute,
-          );
-        });
+      if (data != null && mounted) {
+        final hora = await showTimePicker(
+          context: context,
+          initialTime: _dataHoraSelecionada != null 
+              ? TimeOfDay.fromDateTime(_dataHoraSelecionada!)
+              : const TimeOfDay(hour: 8, minute: 0),
+        );
+
+        if (hora != null && mounted) {
+          setState(() {
+            _dataHoraSelecionada = DateTime(
+              data.year,
+              data.month,
+              data.day,
+              hora.hour,
+              hora.minute,
+            );
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _mostrarErro('Erro ao selecionar data e hora');
       }
     }
   }
 
   Future<void> _criarReserva() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_recursoSelecionado == null) {
-      _mostrarErro('Selecione um recurso');
+    if (_salaSelecionada == null) {
+      _mostrarErro('Selecione uma sala');
       return;
     }
     if (_dataHoraSelecionada == null) {
@@ -97,14 +106,13 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
         throw Exception('Usuário não logado');
       }
 
-      // Verificar disponibilidade
       final disponivel = await ReservaService.verificarDisponibilidade(
-        _recursoSelecionado!.id,
+        _salaSelecionada!.id,
         _dataHoraSelecionada!,
       );
 
       if (!disponivel) {
-        _mostrarErro('Recurso não disponível neste horário');
+        _mostrarErro('Sala não disponível neste horário');
         return;
       }
 
@@ -112,11 +120,11 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
         informacao: _informacaoController.text.trim(),
         dataReservada: _dataHoraSelecionada!,
         pessoaId: usuario.id,
-        recursoId: _recursoSelecionado!.id,
+        recursoId: _salaSelecionada!.id,
       );
 
-      _mostrarSucesso('Reserva criada com sucesso!');
-      Navigator.pop(context, true); // Retorna true para indicar sucesso
+      _mostrarSucesso('Reserva de sala criada com sucesso!');
+      Navigator.pop(context, true);
     } catch (e) {
       _mostrarErro('Erro ao criar reserva: $e');
     } finally {
@@ -144,12 +152,10 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titulo = widget.tipoReserva == 'AMBIENTE' ? 'Reservar Sala' : 'Reservar Equipamento';
-    
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(titulo),
+        title: const Text('Reservar Sala'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -163,9 +169,9 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Selecione o ${widget.tipoReserva == 'AMBIENTE' ? 'ambiente' : 'equipamento'}',
-                    style: const TextStyle(
+                  const Text(
+                    'Selecione a sala',
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -173,11 +179,11 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  if (_carregandoRecursos)
+                  if (_carregandoSalas)
                     const Center(child: CircularProgressIndicator())
-                  else if (_recursos.isEmpty)
+                  else if (_salas.isEmpty)
                     const Text(
-                      'Nenhum recurso disponível',
+                      'Nenhuma sala disponível',
                       style: TextStyle(color: Colors.white70),
                     )
                   else
@@ -190,22 +196,22 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<Recurso>(
-                          value: _recursoSelecionado,
+                          value: _salaSelecionada,
                           hint: const Text(
-                            'Selecione um recurso',
+                            'Selecione uma sala',
                             style: TextStyle(color: Colors.white70),
                           ),
                           dropdownColor: const Color(0xFF2a1810),
                           style: const TextStyle(color: Colors.white),
                           isExpanded: true,
-                          items: _recursos.map((recurso) {
+                          items: _salas.map((sala) {
                             return DropdownMenuItem<Recurso>(
-                              value: recurso,
-                              child: Text(recurso.nome),
+                              value: sala,
+                              child: Text(sala.nome),
                             );
                           }).toList(),
-                          onChanged: (recurso) {
-                            setState(() => _recursoSelecionado = recurso);
+                          onChanged: (sala) {
+                            setState(() => _salaSelecionada = sala);
                           },
                         ),
                       ),
@@ -254,7 +260,7 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
                   const SizedBox(height: 24),
                   
                   const Text(
-                    'Informações Adicionais',
+                    'Motivo da Reserva',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -267,8 +273,12 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
                     controller: _informacaoController,
                     style: const TextStyle(color: Colors.white),
                     maxLines: 3,
+                    maxLength: 500,
+                    buildCounter: (context, {required currentLength, required isFocused, maxLength}) {
+                      return null;
+                    },
                     decoration: InputDecoration(
-                      hintText: 'Descreva o motivo da reserva...',
+                      hintText: 'Ex: Aula de matemática, reunião de projeto...',
                       hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.1),
@@ -296,7 +306,7 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
                   const Spacer(),
                   
                   ModernButton(
-                    text: 'Criar Reserva',
+                    text: 'Reservar Sala',
                     onPressed: _carregando ? null : _criarReserva,
                     isLoading: _carregando,
                   ),
@@ -309,9 +319,4 @@ class _NovaReservaScreenState extends State<NovaReservaScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _informacaoController.dispose();
-    super.dispose();
-  }
 }

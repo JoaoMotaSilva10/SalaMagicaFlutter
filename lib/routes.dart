@@ -3,12 +3,11 @@ import 'screens/login_screen.dart';
 import 'screens/cadastro_screen.dart';
 import 'screens/perfil_screen.dart';
 import 'screens/editar_perfil_screen.dart';
-import 'screens/reserva_equipamento_screen.dart';
-import 'screens/reservar_sala_screen.dart';
 import 'screens/minhas_reservas_screen.dart';
-import 'screens/nova_reserva_screen.dart';
+import 'screens/reserva_screen.dart';
+import 'screens/reserva_sala_screen.dart';
+import 'screens/reserva_equipamento_screen.dart';
 import 'screens/suporte_screen.dart';
-import 'screens/tipo_reserva_screen.dart';
 import 'screens/inicio_screen.dart';
 import 'screens/analise_screen.dart';
 import 'screens/esqueci_senha_screen.dart';
@@ -23,11 +22,9 @@ class AppRoutes {
   static const String perfil = '/perfil';
   static const String editarPerfil = '/editar_perfil';
   static const String reserva = '/reserva';
-  static const String reservarEquipamento = '/reserva_equipamento';
-  static const String reservarSala = '/reserva_sala';
+  static const String reservaSala = '/reserva_sala';
+  static const String reservaEquipamento = '/reserva_equipamento';
   static const String minhasReservas = '/minhas_reservas';
-
-  static const String novaReserva = '/nova_reserva';
   static const String mensagens = '/mensagens';
   static const String analise = '/analise';
   static const String esqueciSenha = '/esqueci_senha';
@@ -68,31 +65,24 @@ class AppRoutes {
         );
 
       case reserva:
+        final tipoReserva = args as String;
         return MaterialPageRoute(
-          builder: (_) => TipoReservaScreen(usuario: args as Usuario),
+          builder: (_) => NovaReservaScreen(tipoReserva: tipoReserva),
         );
 
-      case reservarEquipamento:
+      case reservaSala:
         return MaterialPageRoute(
-          builder: (_) => ReservaEquipamentoScreen(usuario: args as Usuario),
+          builder: (_) => const ReservaSalaScreen(),
         );
 
-      case reservarSala:
+      case reservaEquipamento:
         return MaterialPageRoute(
-          builder: (_) => ReservarSalaScreen(usuario: args as Usuario),
+          builder: (_) => const ReservaEquipamentoScreen(),
         );
 
       case minhasReservas:
         return MaterialPageRoute(
           builder: (_) => const MinhasReservasScreen(),
-        );
-
-
-
-      case novaReserva:
-        final tipoReserva = args as String;
-        return MaterialPageRoute(
-          builder: (_) => NovaReservaScreen(tipoReserva: tipoReserva),
         );
 
       case mensagens:

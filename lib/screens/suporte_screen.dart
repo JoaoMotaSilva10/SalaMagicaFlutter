@@ -21,19 +21,26 @@ class _SuporteScreenState extends State<SuporteScreen> {
   String? _successMessage;
 
   void _enviarMensagem() async {
+    // Validações iniciais
+    if (selectedOption == null) {
+      setState(() {
+        _errorMessage = 'Por favor, selecione um assunto.';
+      });
+      return;
+    }
+
+    if (_messageController.text.trim().isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor, digite sua mensagem.';
+      });
+      return;
+    }
+
     setState(() {
       _loading = true;
       _errorMessage = null;
       _successMessage = null;
     });
-
-    if (selectedOption == null || _messageController.text.trim().isEmpty) {
-      setState(() {
-        _loading = false;
-        _errorMessage = 'Por favor, selecione um assunto e digite a mensagem.';
-      });
-      return;
-    }
 
     // Debug: verificar dados do usuário
     print('🔍 DEBUG - Dados do usuário:');
@@ -46,35 +53,50 @@ class _SuporteScreenState extends State<SuporteScreen> {
       'dataMensagem': DateTime.now().toIso8601String(),
       'emissor': widget.usuario.nome,
       'email': widget.usuario.email,
-      'rm': widget.usuario.rm ?? 'N/A',
+      'rm': widget.usuario.rm ?? '',
       'assunto': selectedOption!,
       'texto': _messageController.text.trim(),
-      'statusMensagem': 'ATIVO',
+      'statusMensagem': 'ATIVO'
     };
 
     try {
+      print('🔄 Iniciando envio da mensagem...');
       final response = await ApiService.enviarMensagemSuporte(mensagem);
+      
       if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() {
-          _successMessage = 'Mensagem enviada com sucesso!';
-        });
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => MensagemEnviadaScreen(usuario: widget.usuario),
-          ),
-        );
+        print('✅ Mensagem enviada com sucesso!');
+        if (mounted) {
+          setState(() {
+            _successMessage = 'Mensagem enviada com sucesso!';
+          });
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MensagemEnviadaScreen(usuario: widget.usuario),
+            ),
+          );
+        }
       } else {
+        print('⚠️ Erro no servidor: ${response.statusCode} - ${response.body}');
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Erro ao enviar mensagem: ${response.body}';
+          });
+        }
+      }
+    } catch (e, stackTrace) {
+      print('❌ Erro ao enviar mensagem:');
+      print('Erro: $e');
+      print('Stack trace: $stackTrace');
+      if (mounted) {
         setState(() {
-          _errorMessage = 'Erro ao enviar mensagem.';
+          _errorMessage = 'Erro de conexão: ${e.toString()}';
         });
       }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Erro de conexão com o servidor.';
-      });
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 

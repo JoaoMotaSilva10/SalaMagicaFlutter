@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../model/usuario.dart';
-import '../services/auth_service_new.dart';
+import '../services/auth_service.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/modern_button.dart';
 import '../routes.dart';

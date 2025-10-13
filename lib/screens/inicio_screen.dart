@@ -112,22 +112,20 @@ class InicioScreen extends StatelessWidget {
                     children: [
                       _buildMenuButton(
                         context,
-                        icon: Icons.bookmark,
+                        icon: Icons.meeting_room,
                         label: 'Reservar Sala',
                         onTap: () => Navigator.pushNamed(
                           context,
-                          AppRoutes.reservarSala,
-                          arguments: usuario,
+                          AppRoutes.reservaSala,
                         ),
                       ),
                       _buildMenuButton(
                         context,
-                        icon: Icons.desktop_mac,
-                        label: 'Equipamentos',
+                        icon: Icons.devices,
+                        label: 'Reservar Equipamento',
                         onTap: () => Navigator.pushNamed(
                           context,
-                          AppRoutes.reservarEquipamento,
-                          arguments: usuario,
+                          AppRoutes.reservaEquipamento,
                         ),
                       ),
                       _buildMenuButton(
@@ -137,7 +135,6 @@ class InicioScreen extends StatelessWidget {
                         onTap: () => Navigator.pushNamed(
                           context,
                           AppRoutes.minhasReservas,
-                          arguments: usuario,
                         ),
                       ),
                       _buildMenuButton(
@@ -167,12 +164,12 @@ class InicioScreen extends StatelessWidget {
       required VoidCallback onTap}) {
     return ModernCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF6200ea), Color(0xFF7e3ff2)],
@@ -199,7 +196,7 @@ class InicioScreen extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontSize: 13,
             ),
           ),
         ],

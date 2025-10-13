@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/reserva.dart';
 import '../model/recurso.dart';
-import 'auth_service_new.dart';
+import 'auth_service.dart';
 
 class ReservaService {
-  static const String baseUrl = 'http://localhost:8080';
+  static const String baseUrl = 'http://10.0.2.2:8080';
 
   // Criar nova reserva
   static Future<Reserva> criarReserva({
@@ -15,14 +15,17 @@ class ReservaService {
     required int recursoId,
   }) async {
     final headers = await AuthService.getAuthHeaders();
+    headers['Content-Type'] = 'application/json';
     
     final reservaData = {
-      'informacao': informacao,
+      'informacao': informacao.trim(),
       'dataReservada': dataReservada.toIso8601String(),
-      'pessoaId': pessoaId,
+      'pessoaId': pessoaId.toString(), // Convertendo para string como a API espera
       'recurso': {'id': recursoId},
       'statusReserva': 'EM_ANALISE',
     };
+
+    print('Enviando dados para API: ${jsonEncode(reservaData)}');
 
     final response = await http.post(
       Uri.parse('$baseUrl/reservas'),
@@ -30,8 +33,12 @@ class ReservaService {
       body: jsonEncode(reservaData),
     );
 
+    print('Resposta da API (${response.statusCode}): ${response.body}');
+
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return Reserva.fromJson(jsonDecode(response.body));
+      final responseData = jsonDecode(response.body);
+      print('Dados decodificados: $responseData');
+      return Reserva.fromJson(responseData);
     } else {
       throw Exception('Erro ao criar reserva: ${response.body}');
     }
