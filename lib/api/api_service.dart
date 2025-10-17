@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../services/auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://localhost:8080';
   static const Duration timeout = Duration(seconds: 10);
   static const Map<String, String> defaultHeaders = {'Content-Type': 'application/json'};
 

@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/usuario.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  static const String baseUrl = 'http://localhost:8080';
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';
 
